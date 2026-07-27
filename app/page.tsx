@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CoachAI } from "./components/CoachAI";
 
 type Choice = {
   age: "kita" | "grundschule";
@@ -247,6 +248,7 @@ export default function Home() {
         <nav aria-label="Hauptnavigation">
           <a href="#empfehlungen">Für dich</a>
           <a href="#entdecken">Alle Spiele</a>
+          <a href="#coach-ai">Coach AI ✦</a>
         </nav>
         <div className="header-actions">
           <label className="search-box">
@@ -547,19 +549,26 @@ export default function Home() {
         )}
       </section>
 
-      <section className="idea-strip">
-        <p>NOCH NICHTS PASSENDES?</p>
-        <h2>Beschreib deine Situation in einem Satz.</h2>
-        <div className="prompt-mock">
-          <span>
-            „25 müde Kinder, kleine Halle und nur zwei Bälle …“
-          </span>
-          <button type="button" aria-label="Eingabe absenden">
-            →
-          </button>
-        </div>
-        <small>Konzeptvorschau · Freie Suche als nächste Ausbaustufe</small>
-      </section>
+      <CoachAI
+        context={{
+          age: optionLabels.age[choice.age],
+          size: optionLabels.size[choice.size],
+          duration: choice.duration,
+          goal: choice.goal,
+          material: choice.material,
+        }}
+        recommendations={[
+          ...rankedGames,
+          ...games.filter(
+            (game) => !rankedGames.some((ranked) => ranked.id === game.id),
+          ),
+        ].map((game) => ({
+          id: game.id,
+          title: game.title,
+          href: game.href,
+          image: game.image,
+        }))}
+      />
 
       <footer>
         <div className="wordmark footer-mark">
