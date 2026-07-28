@@ -199,6 +199,8 @@ export default function Home() {
 
   useEffect(() => {
     const saved = window.localStorage.getItem("albathek-favorites");
+    // Favorites live in the browser and are restored after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved) setFavorites(JSON.parse(saved));
   }, []);
 
@@ -443,6 +445,8 @@ export default function Home() {
             {rankedGames.slice(0, 3).map((game, index) => (
               <article className={`game-card featured featured-${index + 1}`} key={game.id}>
                 <div className="image-wrap">
+                  {/* Native images avoid vinext's unavailable Next image optimizer. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={game.image} alt="" />
                   <span className="match-badge">{game.score}% Match</span>
                   <button
@@ -517,6 +521,8 @@ export default function Home() {
           {rankedGames.slice(3, showAll ? rankedGames.length : 7).map((game) => (
             <article className="compact-card" key={game.id}>
               <div className="compact-image">
+                {/* Native images avoid vinext's unavailable Next image optimizer. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={game.image} alt="" />
                 <button
                   type="button"

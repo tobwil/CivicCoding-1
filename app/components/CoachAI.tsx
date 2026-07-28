@@ -108,6 +108,8 @@ export function CoachAI({ context, recommendations }: Props) {
     const savedModel =
       window.sessionStorage.getItem("albathek-openai-model") ??
       "gpt-5.6-luna";
+    // Browser-only settings are intentionally restored after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setApiKey(savedKey);
     setModel(savedModel);
     setIsLive(Boolean(savedKey));
