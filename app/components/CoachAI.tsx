@@ -2,9 +2,10 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import { buildDemoPlan, settings, type Choice, type Game, type Plan } from "../lib/alba";
+import { settings, type Choice, type Plan } from "../lib/alba";
+import { buildCatalogPlan, type CatalogGame } from "../lib/catalog";
 
-type Props = { context: Choice; recommendations: Game[]; excludedIds: string[] };
+type Props = { context: Choice; recommendations: CatalogGame[]; excludedIds: string[] };
 const starterPrompts = [
   "12 Kinder, Sporthalle, 20 Minuten – gemeinsam in Bewegung kommen",
   "6 Kinder, 5 Jahre, Bewegungsraum, 15 Minuten",
@@ -23,9 +24,11 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [error, setError] = useState("");
   const requestId = useRef(0);
+  const controller = useRef<AbortController | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     requestId.current += 1;
+    controller.current?.abort();
     // A changed group or exclusion invalidates an earlier plan.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPlan(null);
@@ -74,6 +77,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
   );
 
   function saveSettings() {
+    controller.current?.abort();
     requestId.current += 1;
     setPlan(null);
     setLoading(false);
@@ -90,6 +94,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
   }
 
   function clearKey() {
+    controller.current?.abort();
     requestId.current += 1;
     setPlan(null);
     setLoading(false);
@@ -109,14 +114,17 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
 
     try {
       if (!apiKey.trim()) {
-        await new Promise((resolve) => window.setTimeout(resolve, 850));
-        const demo = buildDemoPlan(cleanPrompt, context, excludedIds);
+        const demo = buildCatalogPlan(cleanPrompt, context, excludedIds);
         if (currentRequest === requestId.current) setPlan(demo);
         return;
       }
 
+      controller.current?.abort();
+      controller.current = new AbortController();
+      try { setPlan(buildCatalogPlan(cleanPrompt, context, excludedIds)); } catch { /* Special constraints need the AI check first. */ }
       const response = await fetch("/api/coach", {
         method: "POST",
+        signal: AbortSignal.any([controller.current.signal, AbortSignal.timeout(40000)]),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: cleanPrompt,
@@ -135,6 +143,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
       setIsLive(true);
     } catch (requestError) {
       if (currentRequest !== requestId.current) return;
+      setPlan(null);
       setError(
         requestError instanceof Error
           ? requestError.message
@@ -163,7 +172,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
           </h2>
           <p>
             „Die Halle ist klein, die Kinder sind laut und ich habe 20
-            Minuten.“ Coach AI berücksichtigt eure Bedingungen und die neuen ALBA-Spielanleitungen.
+            Minuten.“ Coach AI hilft bei der Auswahl aus dem gesamten ALBAthek-Katalog.
           </p>
           <button type="button" onClick={() => setOpen(true)}>
             Coach AI starten <span>→</span>
@@ -176,13 +185,13 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
           </div>
           <p>„12 Kinder. Sporthalle. Viel Energie.“</p>
           <div className="coach-mini-plan">
-            <span>05′</span>
+            <span>04′</span>
             <strong>Ankommen</strong>
             <i />
-            <span>14′</span>
+            <span>12′</span>
             <strong>Action</strong>
             <i />
-            <span>05′</span>
+            <span>04′</span>
             <strong>Landen</strong>
           </div>
           <small>ALBA-Spiele · geprüfte Auswahl · ein roter Faden</small>
@@ -302,7 +311,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
                   <em>wirklich los?</em>
                 </h2>
                 <p className="coach-subline">
-                  Beschreibe eure Situation. Alter, Anzahl, Raum und Zeit werden für den Plan erneut geprüft. Ohne API-Key nutzt du den regelbasierten Offline-Planer.
+                  Drei verschiedene Spiele aus der ALBAthek. Der Sofortplan ist direkt da; mit API-Key ergänzt die KI eure Situation und Praxistipps.
                 </p>
 
                 <form onSubmit={generatePlan}>
@@ -310,7 +319,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
                     <span className="sr-only">Situation beschreiben</span>
                     <textarea
                       value={prompt}
-                      onChange={(event) => { setPrompt(event.target.value); setPlan(null); requestId.current += 1; setLoading(false); }}
+                      onChange={(event) => { controller.current?.abort(); setPrompt(event.target.value); setPlan(null); requestId.current += 1; setLoading(false); }}
                       placeholder="Zum Beispiel: 25 müde Kinder, kleine Halle und nur zwei Bälle …"
                       rows={4}
                       maxLength={800}
@@ -328,7 +337,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
                 <div className="starter-prompts">
                   <p>ODER SCHNELL STARTEN MIT</p>
                   {starterPrompts.map((starter) => (
-                    <button type="button" key={starter} onClick={() => { setPrompt(starter); setPlan(null); requestId.current += 1; setLoading(false); }}>
+                    <button type="button" key={starter} onClick={() => { controller.current?.abort(); setPrompt(starter); setPlan(null); requestId.current += 1; setLoading(false); }}>
                       {starter}
                     </button>
                   ))}
@@ -345,14 +354,14 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
 
               <section className={`coach-output ${plan ? "has-plan" : ""}`} aria-live="polite">
                 {loading && (
-                  <div className="coach-thinking">
+                  <div className={plan ? "coach-progress" : "coach-thinking"}>
                     <div>
                       <span />
                       <span />
                       <span />
                     </div>
-                    <p>Ich prüfe Bedingungen und passende Spiele …</p>
-                    <small>Situation → ALBA-Regeln → Spielplan</small>
+                    <p>Die KI prüft eure Situation und ergänzt Praxistipps …</p>
+                    <button className="text-button" type="button" onClick={()=>{controller.current?.abort();requestId.current+=1;setLoading(false);setIsLive(false);}}>{plan?"Sofortplan behalten":"Anfrage abbrechen"}</button>
                   </div>
                 )}
 
@@ -378,11 +387,11 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
                   </div>
                 )}
 
-                {plan && !loading && (
+                {plan && (
                   <div className="generated-plan">
                     <div className="plan-topline">
                       <span>DEIN SPIELPLAN</span>
-                      <small>{isLive ? model.toUpperCase() : "REGELBASIERTER PLAN"}</small>
+                      <small>{loading ? "SOFORTVORSCHLAG · KI PRÜFT NOCH" : isLive ? model.toUpperCase() : "REGELBASIERTER PLAN"}</small>
                     </div>
                     <h3>{plan.headline}</h3>
                     <p className="plan-read">{plan.read}</p>
@@ -406,7 +415,7 @@ export function CoachAI({ context, recommendations, excludedIds }: Props) {
                               <span>{item.reason}</span>
                               <small>COACH-TIPP · {item.tip}</small>
                               {game && (
-                                <details><summary>ALBA-Anleitung & Material öffnen</summary><p><strong>Material:</strong> {game.materials}</p><ol>{game.steps.map((step,i)=><li key={i}>{step}</li>)}</ol><small>ALBA-Contenttabelle, Zeile {game.sourceRow} · {game.coach}</small></details>
+                                <details><summary>Material & Original öffnen</summary><p><strong>Material:</strong> {game.materials||"Im Original prüfen"}</p><a href={game.href} target="_blank" rel="noreferrer">Video & Anleitung bei ALBA ↗</a>{context.useTestProfiles&&game.profile&&<p>Ergänzendes Testprofil: {game.profile.tip}</p>}</details>
                               )}
                             </div>
                           </article>

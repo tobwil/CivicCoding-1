@@ -18,6 +18,7 @@ export const rooms = ["Sporthalle", "Bewegungsraum", "Outdoor"] as const;
 export const schoolContexts = ["Alle passenden Anlässe", "Offener Anfang mit Bewegung", "Aufwärmen für den Schulstart", "Bewegter Fachunterricht", "Aktive Pause im Unterricht", "Sport in kleinen & großen Pausen", "Sportunterricht", "Sport-AG", "Übergang in den Vereinssport", "Sportliches Highlight", "Feriensport", "Übergang Kita x Grundschule"];
 export const goals = ["Alle Ziele", "Teamgefühl", "Ballgefühl", "Auspowern", "Koordination"] as const;
 export type Choice = {
+  useTestProfiles?: boolean;
   setting: keyof typeof settings;
   profession: keyof typeof professions;
   age: number;
@@ -66,6 +67,7 @@ export function validateChoice(value: unknown): Choice {
   const c = value as Choice;
   const inRange = (n: unknown, low: number, high: number) => typeof n === "number" && Number.isFinite(n) && n >= low && n <= high;
   if (!Object.hasOwn(settings,c.setting) || !Object.hasOwn(professions,c.profession) || !professionOptions(c.setting).includes(c.profession)
+    || (c.useTestProfiles !== undefined && typeof c.useTestProfiles !== "boolean")
     || !inRange(c.age, 3, 12) || !inRange(c.children, 1, 100) || !Number.isInteger(c.children)
     || !inRange(c.duration, 10, 90) || !Number.isInteger(c.duration) || ![1,2,3].includes(c.experience)
     || !rooms.includes(c.room) || !goals.includes(c.goal) || typeof c.sportswear !== "boolean"
@@ -189,6 +191,7 @@ export function buildDemoPlan(prompt: string, base: Choice, excludedIds: string[
   if (/ohne material|nur (?:\w+\s+)?balle/.test(normalize(prompt))) throw new Error("Der Offline-Planer kann Materialmengen nicht prüfen. Die ALBA-Spiele benötigen die jeweils aufgeführten Materialien. Bitte Material klären oder den KI-Modus nutzen.");
   const candidates = findGames(context).filter(x => x.eligible && !excludedIds.includes(x.game.id));
   if (!candidates.length) throw new Error("Kein ALBA-Testspiel erfüllt diese Bedingungen. Prüfe die Ausschlussgründe im Finder und passe die tatsächlichen Rahmenbedingungen an.");
+  if (candidates.length < 3) throw new Error("Drei unterschiedliche Spiele fehlen. Bitte Bedingungen prüfen; Spiele werden nicht wiederholt.");
   const first = candidates.find(x => /fang|lauf/i.test(x.game.category)) ?? candidates[0];
   const second = candidates.find(x => x.game.id !== first.game.id) ?? first;
   const third = candidates.find(x => x.game.intensity === "gering" && x.game.id !== first.game.id && x.game.id !== second.game.id) ?? candidates.find(x => x.game.id !== first.game.id && x.game.id !== second.game.id) ?? second;
@@ -206,6 +209,7 @@ export function validatePlan(value: unknown, context: Choice, allowed: Game[]): 
   const p = value as Plan;
   if (!p || !Array.isArray(p.timeline) || p.timeline.length !== 3 || ![p.headline,p.read,p.coachNote].every(x => typeof x === "string" && x.length <= 2000)) throw new Error("Die KI-Antwort ist unvollständig. Bitte erneut versuchen.");
   const durations = phaseDurations(context.duration);
+  if (new Set(p.timeline.map(item=>item.gameId)).size !== 3) throw new Error("Doppelte Spiele sind nicht zulässig.");
   const timeline = p.timeline.map((item,i) => {
     const game = allowed.find(g=>g.id === item.gameId);
     if (!game || item.phase !== phases[i] || ![item.reason,item.tip].every(x=>typeof x === "string" && x.length <= 2000)) throw new Error("Die KI hat kein zulässiges Spiel oder keine gültige Phase geliefert.");

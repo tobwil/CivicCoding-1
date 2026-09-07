@@ -1,5 +1,19 @@
 # ALBA-Integration vom 07.09.2026
 
+## Korrektur: öffentlicher Katalog zuerst
+
+Der zuerst veröffentlichte September-Ausbau stellte fälschlich die zehn Testspiele ins Zentrum und schloss die bisherigen acht aus der Planung aus. Dieser Stand wurde nach Nutzerfeedback ersetzt: **657 öffentliche Spiele und Variationen** bilden jetzt den gemeinsamen Katalog für Suche und Coach. Die zehn angelieferten Profile befinden sich in einem optionalen ALBA-Labor. Die nachfolgend dokumentierten Detailregeln gelten nur für diese Testprofile, nicht pauschal als geprüfte Eigenschaften aller 657 Spiele.
+
+Öffentliche Quelle: https://albathek.de/filter/32a8ba1b, Abruf 07.09.2026. Übernommen wurden eindeutige IDs, Original-URLs, Bild-URLs, Grundspiel/Variation, Zielgruppe, Vorbereitungshinweis, Kurzbeschreibungen (höchstens 80 Wörter) und verfügbare Materialangaben. Videos und vollständige öffentliche Spielabläufe werden nicht kopiert. 29 Einträge ohne auslesbare Materialangabe bleiben ausdrücklich offen.
+
+Neun Profile sind über eine manuell geprüfte Zuordnung mit ihren öffentlichen Spielen verknüpft. Die Zuordnung gilt nur für die konkrete Variation, nicht für alle Varianten eines Grundspiels. Gespensterparty ist im abgerufenen öffentlichen Katalog nicht gefunden worden und bleibt ausschließlich im Labor. Die Profile sind standardmäßig deaktiviert; fehlende öffentliche Raum- und Gruppendaten verhindern nicht das Entdecken eines Spiels, werden aber auch nicht als Eignungsnachweis ausgegeben.
+
+### Aktueller Coach-Ablauf
+
+Die öffentliche Suche liefert höchstens 18 unterschiedliche Spielfamilien. Ein lokal berechneter Sofortplan ist ohne künstliche Wartezeit sichtbar. Mit Key folgen Interpretation und Planung in **einem** strukturierten OpenAI-Aufruf. Erkannte Bedingungen werden danach nochmals geprüft. IDs, kanonische Titel, Phasenfolge, exakte Gesamtminuten und drei unterschiedliche URL-Familien sind serverseitig abgesichert. Doppelte Spiele werden abgewiesen. Die Anfrage ist abbrechbar und zeitbegrenzt; Materialmengen und unklare Anforderungen können Rückfragen auslösen. Die tatsächliche OpenAI-Latenz wurde nicht mit einem echten Key gemessen.
+
+Die folgenden Quellen- und Regelnotizen dokumentieren die fachliche Verarbeitung der Testunterlagen. Die frühere zweistufige Coach-Beschreibung weiter unten ist nur noch historischer Kontext.
+
 ## Verwendete Quellen
 
 | Quelle | Übernommene Inhalte | Umsetzung |

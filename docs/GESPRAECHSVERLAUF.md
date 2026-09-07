@@ -90,6 +90,16 @@ Bereitgestellt wurden die Contenttabelle mit zehn Testspielen, die Regelübersic
 
 ## Verweise auf Dokumentation
 
+## Nutzerkorrektur und Überarbeitung · 07.09.2026
+
+Der Nutzer beanstandete sechs Punkte: fehlende Breite des ALBAthek-Katalogs; zu dominante Testspiele; uneinheitlich gefärbte Kacheln; überlagerte Navigation; die lange Altersauswahl unter „Was passt heute?“; langsame Coach-Antworten mit doppelten Spielen. Drei Screenshots dokumentierten die Fehler.
+
+**Korrektur:** 657 öffentlich gelistete Spiele und Variationen mit echten Bildern, Original-Links, Kurzbeschreibungen und Materialien eingebunden. Die zehn Testprofile sind separat und optional im ALBA-Labor, neun mit öffentlichen Spielen verknüpft. Merkliste und Navigation sind entkoppelt, Alter/Kinderzahl über direkte Eingaben und Plus/Minus bedienbar, Zeit und Ort über kurze Auswahlknöpfe. Der Coach zeigt einen unmittelbaren regelbasierten Vorschlag, benötigt nur noch einen optionalen KI-Aufruf und akzeptiert keine doppelte Spielfamilie. Die breitere Sammlung besitzt noch keine vollständigen Detailmetadaten; deshalb sind Vorschläge als Vorauswahl gekennzeichnet.
+
+**Prüfung und Dokumentation:** 19 automatisierte Verhaltenstests, Produktionsbuild, Lint sowie Browserprüfung von Navigation, Suche, Merkliste, Bildern und Sofortplan. Vier neue Screenshots dokumentieren den korrigierten Stand. Die echte Modelllatenz wurde nicht gemessen. README und technische Quellenbeschreibung aktualisiert.
+
+### Verweise
+
 - [Projektübersicht](../README.md)
 - [Bewerbungsentwurf](BEWERBUNG.md)
 - [Screenshots](screenshots/)

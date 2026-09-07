@@ -1,4 +1,4 @@
-/* September ALBA content update: reuse the blue/yellow/cyan design system. */
+/* Shared ALBA palette; experimental content never controls card colors. */
 button, input, select, textarea { font: inherit; }
 button, summary, select { cursor: pointer; }
 :focus-visible { outline: 3px solid #174aa1; outline-offset: 4px; }
@@ -41,8 +41,6 @@ button:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 .rule-notice p { margin: 6px 0 0; }
 .alba-game-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 22px; align-items: start; }
 .alba-card-head { position: relative; padding: 24px; background: var(--blue); color: white; min-height: 210px; display: flex; flex-direction: column; }
-.alba-card-head.intensity-gering { background: var(--cyan-soft); color: var(--blue); }
-.alba-card-head.intensity-hoch { background: var(--yellow); color: var(--blue); }
 .source-tag { font-size: .75rem; letter-spacing: .06em; font-weight: 800; }
 .alba-card-head > div { padding-right: 35px; }
 .alba-card-head p { font-size: .85rem; line-height: 1.4; margin: 10px 0 24px; }
@@ -95,3 +93,97 @@ button:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 @media(max-width:1000px){.alba-game-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.finder-fields{grid-template-columns:repeat(2,minmax(0,1fr));}.framework-panel{margin-left:24px;margin-right:24px;}}
 @media(max-width:640px){.hero.hero-update{padding:28px 22px 70px;}.catalog-count{display:none;}.hero-update h1{font-size:2.5rem;}.site-header nav{display:none;}.saved-button{padding:10px;font-size:.8rem;}.finder-fields{grid-template-columns:1fr 1fr;gap:14px;}.field.wide{grid-column:1/-1;}.field select,.field input{font-size:.95rem;}.setting-tabs button{padding:13px 8px;font-size:.9rem;}.finder-update .finder-heading h2{font-size:1.2rem;}.alba-game-grid{grid-template-columns:1fr;}.framework-panel{grid-template-columns:1fr;padding:26px;margin:0 18px 36px;}.calendar-card{display:block;padding:23px;}.calendar-card a{display:block;}.exclusions>div{grid-template-columns:1fr;}.exclusions summary span{display:block;margin:6px 0;}.alba-card-head{min-height:170px;}.coach-shell .coach-workspace{display:block;}}
 @media print {body:has(.generated-plan) main > :not(.coach-overlay){display:none!important;}.coach-overlay{position:static!important;background:white!important;padding:0!important;}.coach-shell,.coach-workspace,.coach-output{display:block!important;max-height:none!important;height:auto!important;overflow:visible!important;box-shadow:none!important;}.coach-header,.coach-conversation,.ai-settings,.plan-again,.print-plan{display:none!important;}.generated-plan{padding:0!important;}.timeline article{break-inside:avoid;}}
+
+/* Public catalogue and compact, responsive navigation. */
+html { scroll-padding-top: 110px; }
+.catalog-header { grid-template-columns: auto minmax(0,1fr) auto; gap: 32px; }
+.catalog-header nav { justify-content: center; gap: clamp(16px,2.5vw,36px); font-size: .9rem; letter-spacing: 0; }
+.favorites-toggle { justify-self: end; display: inline-flex; align-items: center; gap: 8px; width: auto; min-height: 44px; padding: 9px 16px; border: 1px solid var(--line); border-radius: 24px; color: var(--blue); background: white; font-size: .9rem; font-weight: 750; white-space: nowrap; }
+.favorites-toggle.selected { background: var(--yellow); border-color: var(--yellow); }
+.favorites-count { min-width: 24px; padding: 4px; border-radius: 20px; background: var(--paper); text-align: center; line-height: 1; }
+.hero.hero-update { padding-top: 28px; padding-bottom: 64px; }
+.hero-update h1 { font-size: clamp(2.2rem,3.8vw,3.8rem); }
+.hero-update .hero-lead { margin-bottom: 0; }
+.finder-update { padding: 26px 32px; }
+.finder-update .setting-tabs { max-width: 480px; margin: 20px 0; }
+.setting-tabs button { padding: 10px; }
+.quick-fields { display: grid; grid-template-columns: 1fr 1fr 1.4fr 1.4fr; gap: 20px; margin-bottom: 20px; }
+.number-stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; height: 48px; overflow: hidden; }
+.number-stepper button { height: 46px; min-width: 36px; border: 0; color: var(--blue); background: var(--paper); font-size: 1.3rem; }
+.number-stepper label { display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; gap: 3px; }
+.number-stepper label input { width: 48px; padding: 0; border: 0; min-height: 40px; text-align: center; font-size: 1.05rem; appearance: textfield; -moz-appearance: textfield; }
+.number-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.number-stepper label > span:last-child { font-size: .85rem; }
+.choice-pills { border: 0; padding: 0; margin: 0; min-width: 0; }
+.choice-pills legend { font-size: .9rem; font-weight: 750; margin-bottom: 8px; }
+.choice-pills > div { display: flex; gap: 5px; }
+.choice-pills button { flex: 1; min-height: 48px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--blue); padding: 5px; font-size: .9rem; }
+.choice-pills button small { display: block; font-size: .75rem; }
+.choice-pills button[aria-pressed=true],.segmented button[aria-pressed=true] { background: var(--blue); color: white; border-color: var(--blue); }
+.finder-update .advanced-filters { margin-bottom: 0; }
+.finder-update .advanced-filters summary { padding: 16px 0; }
+.finder-update .advanced-filters[open] { padding-bottom: 20px; }
+.finder-update .finder-footer { margin-top: 0; padding-top: 16px; gap: 20px; }
+.finder-update .finder-footer p { max-width: 520px; font-size: .85rem; }
+.catalog-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 24px; flex-wrap: wrap; }
+.segmented { display: flex; gap: 5px; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 5px; }
+.segmented button { border: 0; border-radius: 8px; padding: 10px 15px; background: white; color: var(--blue); font-size: .9rem; }
+.catalog-card { border: 1px solid var(--line); background: white; border-radius: 16px; overflow: hidden; color: var(--blue); min-width: 0; }
+.catalog-image { position: relative; aspect-ratio: 3/2; background: #eef2f7; overflow: hidden; }
+.catalog-image > a { display: block; width: 100%; height: 100%; }
+.catalog-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .2s; }
+.catalog-image a:hover img { transform: scale(1.025); }
+.video-link { position: absolute; left: 14px; bottom: 14px; border-radius: 20px; background: var(--blue); color: white; padding: 8px 12px; font-size: .8rem; font-weight: 700; }
+.catalog-card-body { padding: 20px; }
+.catalog-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: .75rem; color: #486078; }
+.catalog-meta span + span { color: var(--blue); background: #fff4ac; border-radius: 4px; padding: 0 5px; }
+.catalog-card h3 { font-size: 1.4rem; line-height: 1.2; letter-spacing: -.02em; margin: 12px 0 10px; }
+.catalog-card h3 a:hover { text-decoration: underline; }
+.catalog-card .audience { font-size: .8rem; color: #536981; }
+.catalog-description { font-size: 1rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.catalog-card .recipe-body a { display: block; font-weight: 700; text-decoration: underline; }
+.catalog-card .favorite { right: 14px; top: 14px; }
+.catalog-hint { font-size: .9rem; line-height: 1.5; margin: -5px 0 24px; color: #486078; }
+.load-more { text-align: center; margin: 30px 0 0; }
+.load-more p { font-size: .9rem; color: #486078; }
+.alba-lab { max-width: 1200px; margin: 50px auto; border: 1px solid var(--line); border-radius: 18px; background: white; }
+.alba-lab > details > summary { display: flex; align-items: center; gap: 20px; padding: 24px; }
+.alba-lab summary strong { display: block; font-size: 1.2rem; }
+.alba-lab summary small { display: block; font-size: .85rem; margin-top: 5px; }
+.alba-lab > details > summary > span:last-child { margin-left: auto; }
+.trial-tag { display: inline-block; padding: 6px 9px; border: 1px dashed var(--blue); border-radius: 5px; font-size: .75rem; font-weight: 750; }
+.lab-body { padding: 0 24px 24px; font-size: 1rem; line-height: 1.6; }
+.lab-profiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; align-items: start; }
+.lab-profiles > details { border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.lab-profiles summary { font-weight: 750; }
+.lab-profiles summary span { font-size: .75rem; font-weight: 400; margin-left: 8px; }
+.lab-profiles ol { padding-left: 20px; }
+@media(max-width:1100px) {
+  .quick-fields { grid-template-columns: 1fr 1fr; }
+  .catalog-header { gap: 20px; padding: 0 24px; }
+  .catalog-header nav { gap: 18px; font-size: .85rem; }
+  .alba-lab { margin-left: 24px; margin-right: 24px; }
+}
+@media(max-width:760px) {
+  html { scroll-padding-top: 135px; }
+  .catalog-header { height: auto; min-height: 112px; padding: 14px 20px 0; grid-template-columns: 1fr auto; gap: 14px; }
+  .catalog-header nav { display: flex; grid-column: 1/-1; grid-row: 2; justify-content: space-between; border-top: 1px solid var(--line); padding: 3px 0; gap: 12px; font-size: .8rem; }
+  .catalog-header .favorites-toggle { grid-column: 2; grid-row: 1; padding: 8px 12px; font-size: .85rem; }
+  .hero.hero-update { padding-top: 24px; }
+  .hero-update h1 { font-size: 2.35rem; }
+  .finder-update { padding: 22px; }
+  .quick-fields { gap: 16px 12px; }
+  .room-pills { grid-column: 1/-1; }
+  .choice-pills:not(.room-pills) { grid-column: 1/-1; }
+  .choice-pills button small { display: inline; }
+  .finder-update .finder-footer { flex-direction: column; align-items: stretch; }
+  .catalog-toolbar { gap: 8px; }
+  .segmented { width: 100%; }
+  .segmented button { flex: 1; padding: 10px 5px; }
+  .alba-game-grid { grid-template-columns: 1fr; }
+  .lab-profiles { grid-template-columns: 1fr; }
+  .alba-lab > details > summary { gap: 12px; flex-wrap: wrap; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior: auto; } .catalog-image img { transition: none; } }
+.coach-progress { padding: 16px 22px; background: white; border-bottom: 1px solid var(--line); font-size: .9rem; }
+.coach-progress p { margin: 0; }

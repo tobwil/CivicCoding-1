@@ -1,84 +1,86 @@
 # ALBAthek Match
 
-**Passende Bewegungsspiele für Kita, Grundschule und Verein – mit Coach AI.**
+Bewegungsspiele für Kita, Grundschule und Verein finden – mit optionalem KI-Coach.
 
-[Bisherige Live-Version](https://albathek-match.dahoooo.chatgpt.site) · [ALBA-Daten & Regelentscheidungen](docs/ALBA-INPUT.md) · [Gesprächsverlauf](docs/GESPRAECHSVERLAUF.md)
+[Live-Prototyp](https://albathek-match.dahoooo.chatgpt.site) · [Daten & Regeln](docs/ALBA-INPUT.md) · [Gesprächsverlauf](docs/GESPRAECHSVERLAUF.md)
 
-## Ausbau mit ALBA-Input · September 2026
+## Aktueller Stand · 07.09.2026
 
-Der Katalog enthält **18 Spiele**: zehn neue, detailliert beschriebene Testspiele von ALBA sowie die acht bisher integrierten Spiele. Die neue Auswahl berücksichtigt die Contenttabelle, die Regelübersicht für Kita/Grundschule/Verein und das SPORT-VERNETZT-Rahmenwerk für Coaches.
+**657 öffentlich gelistete ALBAthek-Spiele und Variationen** mit Originalbildern, Kurzbeschreibungen und direkten Links. Die bisherigen acht Spiele sind Teil dieses Katalogs. Es handelt sich um einen importierten Stand der öffentlichen [Spieleübersicht](https://albathek.de/filter/32a8ba1b), nicht um eine laufende CMS-Synchronisierung.
 
-Die zehn neuen Spiele sind Gartenzwerge, Papprollenangeln, Mäuschen aus dem Haus, Flaschenkegeln, Zauberball mit mehreren Fangkindern, Heiße Kartoffel mit Reifen, Jahreszeitenlauf, Schmuggel-Ei, Osterhase und Krokodil sowie Gespensterparty.
+Die zehn zusätzlich von ALBA gelieferten **Testprofile** sind separat im „ALBA-Labor“ untergebracht. Neun ergänzen vorhandene öffentliche Spiele; Gespensterparty bleibt ein eigenständiger Testdatensatz. Die experimentelle Detailprüfung ist standardmäßig ausgeschaltet.
 
 ## Für Nutzerinnen und Nutzer
 
-1. Setting und Profession wählen.
-2. Jüngstes Alter, Erfahrung der Gruppe, Kinderzahl, Raum und Zeit einstellen.
-3. Sportkleidung und gegebenenfalls Bewegungsanlass berücksichtigen.
-4. Optional nach Ziel, Material, Vorbereitung, Regeln, Intensität oder Sozialform eingrenzen.
-5. Spiel, Thema, Bewegung oder Material suchen und die passende Anleitung direkt öffnen.
-6. Spiele merken oder für heute ausblenden. „Warum fehlen Spiele?“ zeigt konkrete Ausschlussgründe.
-7. Coach AI öffnen: Situation beschreiben, geprüften Spielplan erhalten, Originalabläufe lesen und den Plan drucken.
+1. **Spiele entdecken:** Gesamten Katalog durchsuchen, Grundspiele oder Variationen auswählen und weitere Treffer in 24er-Schritten laden.
+2. **Für deine Gruppe:** Kita, Grundschule oder Verein wählen; Alter und Kinderzahl direkt ändern, Zeit und Ort antippen. Ziel, Material und Anleitung liegen unter „Weitere Einstellungen“ beziehungsweise „Ziel, Material & Anleitung einstellen“.
+3. **Merken:** Das Herz speichert Spiele lokal auf diesem Gerät. „Gemerkt“ öffnet die Merkliste. Unter Material & Details lassen sich Spiele für heute ausblenden.
+4. **Original öffnen:** Bild oder Titel führt zu Video und vollständiger Anleitung bei ALBA. Bilder werden von ALBA geladen; Videos werden nicht kopiert.
+5. **Coach AI:** Situation beschreiben und eine Einheit mit drei unterschiedlichen Spielfamilien erstellen. Der regelbasierte Sofortplan braucht keinen API-Key. Pläne lassen sich drucken.
+6. **ALBA-Labor:** Testprofile lesen und optional zusätzliche Detailregeln ausprobieren. Sie ersetzen weder die öffentliche Sammlung noch eine fachliche Freigabe.
 
-Ab 30 Minuten erscheinen die von ALBA angegebenen Jahreskalender beziehungsweise Sport-Mini-Reihen. Die Coach-Hinweise richten sich nach Alter und Setting: Bewegungszeit, Mitspielen, Materialerfahrung, Entscheidungsfreiheit und Reflexion.
+Die öffentliche Sammlung enthält keine vollständigen Angaben zu exakten Altersgrenzen, Gruppenkapazität und Räumen. Treffer sind deshalb **eine Vorauswahl, keine bestätigte Eignungsprüfung**. Prüfe Originalanleitung, Materialmengen, Platz und Gruppe selbst. Für längere Angebote werden ALBAs Jahreskalender bzw. Mini-Reihen verlinkt.
 
-### Warum manche Kombinationen keine Spiele liefern
+### OpenAI einrichten
 
-ALBAs Einsteigerregeln verlangen gemeinsam wenige Regeln, minimale Vorbereitung, ein kleines Spiel und die Einstufung „Knaller“. Der aktuelle Zehner-Testkatalog enthält kein Spiel, das alle Kriterien zugleich erfüllt. Die App zeigt diese Datenlücke offen. Für Kita-Gruppen ab 13 Kindern sind nur ausgewiesene Outdoor-Spiele erlaubt; im Kita-Bewegungsraum wird die maximale Hallenkapazität geviertelt.
+Coach AI → OpenAI → eigenen API-Key eintragen → für diese Sitzung verwenden. Der Key liegt ausschließlich im Tab-`sessionStorage`, geht bei einer Anfrage an den eigenen Server und von dort an OpenAI. Er wird nicht in einer Datenbank gespeichert. Entfernen ist jederzeit möglich.
 
-Die acht bisherigen Spiele bleiben in „Aus der bisherigen Sammlung“ verlinkt. Ihnen fehlen die neuen Metadaten, deshalb werden sie nicht automatisch als passende Planbausteine eingesetzt.
+Pro Live-Plan erfolgt **ein** kostenpflichtiger Aufruf der Responses API statt zuvor zwei aufeinanderfolgender Aufrufe. Währenddessen erscheint, soweit die Angaben lokal verarbeitbar sind, schon ein eindeutig markierter Sofortvorschlag. Die KI lässt sich abbrechen. Spezielle Materialmengen oder unklare Anforderungen können eine Rückfrage auslösen.
 
-## Coach AI und OpenAI-Einstellungen
+Die tatsächliche KI-Antwortzeit hängt weiterhin vom gewählten Modell und OpenAI ab; es gibt keine garantierte Sekundenangabe. Ohne gültigen Key ist der Sofortplan vollständig nutzbar.
 
-Ohne Key funktioniert ein **regelbasierter Offline-Planer**. Er erkennt einfache Angaben zu Anzahl, Alter, Raum und Zeit. Die angezeigte Dauer ergibt exakt die verfügbare Gesamtzeit. Offline wird keine freie KI-Interpretation behauptet.
+## Technische Perspektive
 
-Für KI-Planung: Coach AI → OpenAI → eigenen API-Key eintragen → für diese Sitzung verwenden. Der Key liegt im Tab-`sessionStorage`, wird bei einer Anfrage an den eigenen Server und von dort an OpenAI gesendet. Die Anwendung speichert ihn nicht in einer Datenbank. Entfernen ist jederzeit möglich. Live-Planungen können zwei kostenpflichtige Modellanfragen auslösen.
+React 19 / TypeScript, Next.js auf vinext/Vite und Cloudflare Workers/Sites. Keine Datenbank: Merkliste gerätelokal, OpenAI-Einstellungen sitzungsbezogen.
 
-Die Live-Planung liest zuerst die Situation, prüft die daraus erkannten Bedingungen erneut gegen ALBAs Regeln und erstellt anschließend einen Plan ausschließlich aus der zulässigen Auswahl. Bei fehlendem Material oder unklaren Mengen fragt sie nach. Rahmenbedingungen und Originalmaterialien stehen beim Ergebnis zur Kontrolle.
+### Datenfluss
 
-## Architektur
+```text
+Öffentliche ALBAthek → versionierter Katalog mit 657 Einträgen
+                                     ↓
+Suche + vorhandene Metadaten → Vorauswahl → bis zu 18 unterschiedliche Spielfamilien
+                                     ↓
+                             Sofortplan (lokal)
+                                     ↓
+                          ein optionaler KI-Aufruf
+                                     ↓
+                   Bedingungen, IDs, Familien & Phasen prüfen
+                                     ↓
+                     drei Spiele, kanonische Titel, exakte Minuten
 
-```mermaid
-flowchart LR
-    A["ALBA-Contenttabelle"] --> B["Gemeinsamer Spielkatalog"]
-    R["Regelübersicht"] --> F["Auswahlprüfung"]
-    U["Setting · Profession · Gruppe · Raum"] --> F
-    B --> F
-    F --> E["Treffer + Ausschlussgründe"]
-    P["Freie Situation"] --> X["KI erkennt Bedingungen"]
-    X --> F
-    F --> C["KI plant aus zulässigen Spielen"]
-    W["SPORT VERNETZT Rahmenwerk"] --> C
-    C --> V["IDs + Phasen prüfen / Zeiten setzen"]
-    V --> O["Spielplan + Originalabläufe"]
+ALBA-Testprofile → optionales Labor → zusätzliche Detailprüfung für 9 zugeordnete Spiele
+SPORT VERNETZT → pädagogische Hinweise für Sofortplan und KI
 ```
 
-- **React 19 / TypeScript**, Next.js auf vinext, Vite, Cloudflare Workers/Sites.
-- **Keine Datenbank:** Favoriten sind gerätelokal, OpenAI-Einstellungen sitzungsbezogen.
-- **Ein Katalog für Finder und API:** keine auseinanderlaufenden Duplikate.
-- **Deterministische Ausschlüsse:** Alter, Raum, Gruppengröße, Profession, Sportkleidung, Anlass und zusätzliche Filter.
-- **Priorisierung:** Zielbezug und Vorbereitungsaufwand sortieren innerhalb der passenden Spiele; keine erfundenen Match-Prozentwerte.
-- **OpenAI Responses API:** zwei Schritte mit Structured Outputs, `store: false`, Zeitlimits und Fehlerbehandlung.
-- **Validierung:** Eingabebereiche, Materialauswahl, gültige Spiel-IDs, kanonische Titel, Phasenfolge und exakte Zeitaufteilung.
+- Suche über Titel, Kurzbeschreibung und Material; Titelübereinstimmungen werden bevorzugt.
+- Grundspiele und schnell vorbereitete Angebote erhalten einen Ranking-Vorteil; Zielbezug priorisiert. Keine erfundenen Match-Prozentwerte.
+- Spiel-Familien werden über den Original-URL-Pfad erkannt. Weder dieselbe ID noch eine weitere Variante derselben Familie darf zweimal im Plan stehen.
+- Die KI erhält nur eine begrenzte Auswahl, keine 657 vollständigen Datensätze.
+- Structured Outputs, `store: false`, maximal 2.200 Ausgabetokens, serverseitiges Zeitlimit und Abbruchsignal.
+- Die KI interpretiert Bedingungen und plant in einem Aufruf; erkannte Änderungen werden danach erneut geprüft.
+- Kanonische Titel und Zeitanteile werden im Server gesetzt. Nicht passende oder doppelte Antworten werden mit einer Meldung abgewiesen, nicht still repariert.
+- Zeitaufteilung Ankommen/Action/Landen ist ein Vorschlag des Prototyps, keine offizielle ALBA-Systematik.
+- Fehlende Quelldaten werden nicht als bestätigte Eignung ausgegeben.
 
 ### Projektstruktur
 
 ```text
-app/data/alba-games.json      Zehn ALBA-Spiele mit Originalfeldern und Quellzeilen
-app/data/legacy-games.json    Acht bisherige Spiele
-app/lib/alba.ts               Gemeinsame Regeln, Suche, Leitlinien und Offline-Plan
-app/page.tsx                  Finder, Details, Favoriten, Kalender und Sammlung
-app/components/CoachAI.tsx    Coach, Settings und druckbarer Plan
-app/api/coach/route.ts        Situationsanalyse und regelgebundene KI-Planung
-app/alba.css                  Erweiterung des bestehenden ALBA-Designs
-scripts/import-alba.py        Reproduzierbarer, lesender XLSX-Import
-tests/product.test.mjs        Ausführbare Regel- und API-Tests
-docs/ALBA-INPUT.md            Quellen, offene Punkte und Interpretationen
+app/data/public-games.json    657 öffentliche Spiele, Metadaten und Quellen
+app/data/alba-games.json      10 separat angelieferte ALBA-Testprofile
+app/data/legacy-games.json    Historischer Acht-Spiele-Stand (nicht doppelt angezeigt)
+app/lib/catalog.ts           Öffentliche Suche, Profilzuordnung, Planer und Validierung
+app/lib/alba.ts               Experimentelle Detailregeln und Rahmenwerk-Leitlinien
+app/page.tsx                  Katalog, kompakte Filter, Merkliste und ALBA-Labor
+app/components/CoachAI.tsx    Coach, Einstellungen, Sofortvorschlag und Druckansicht
+app/api/coach/route.ts        Ein KI-Aufruf mit anschließender Validierung
+scripts/scrape-albathek.mjs   Import der öffentlichen Übersicht und Spielmetadaten
+scripts/import-alba.py        Lesender XLSX-Import
+tests/product.test.mjs        Regel-, Katalog- und API-Tests
 ```
 
-### Lokal starten und prüfen
+### Lokal starten
 
-Node.js >=22.13.0:
+Node.js >= 22.13.0:
 
 ```bash
 npm install
@@ -87,27 +89,34 @@ npm test
 npm run lint
 ```
 
-Die Oberfläche läuft unter http://localhost:3000. Für Demo und Tests ist kein API-Key nötig. Die Tests prüfen die tatsächliche Regel- und API-Logik mit kontrollierten Modellantworten; sie führen keine kostenpflichtigen Live-Anfragen aus.
+Die Oberfläche läuft unter http://localhost:3000. Tests verwenden kontrollierte Modellantworten, keine API-Credits. Der Produktionsbuild und 19 Verhaltenstests sind erfolgreich. Im Browser wurden Navigation, Originalbilder, Gagaball-Suche, Merkliste und ein Sofortplan geprüft. Ein echter OpenAI-Latenztest ist nicht Bestandteil dieses Prüfstands.
 
-Der Importer benötigt Python und `openpyxl` und gibt JSON auf stdout aus. Er verändert die Quelldatei nicht. Die verwendeten Dateien und Normalisierungen sind in [ALBA-INPUT.md](docs/ALBA-INPUT.md) beschrieben.
+Ein eigenständiges `tsc --noEmit` meldet weiterhin fehlende Cloudflare-Umgebungstypen in den unveränderten Starterdateien `db/index.ts` und `worker/index.ts`; der vinext-Produktionsbuild funktioniert.
 
-### Grenzen und Übergabe
+### Katalog aktualisieren
 
-Die Regelblätter für Grundschule und Verein sind ALBA-Entwürfe. Raumskalierung, nicht mitgelieferte Taxonomie-Anhänge, Materialmengen, Alters-Obergrenzen und die genaue Einheitenstruktur benötigen noch fachlichen Abgleich. Die Dreiteilung und Zeiteinteilung sind Vorschläge des Prototyps. Fehlende Quellwerte bleiben sichtbar.
+Die öffentliche Übersicht als HTML lokal speichern, dann:
 
-Ein öffentlicher Produktivbetrieb braucht weiterhin eine vollständige Katalog-/CMS-Anbindung, gemeinsame Tests mit Anleitenden, Betriebskonzept, serverseitige Schlüsselverwaltung und Kostenkontrolle. Die anleitende Person prüft die Eignung der Einheit. Der neue Stand wurde mit simulierten API-Antworten geprüft; ein Live-Test benötigt einen gültigen Key.
+```bash
+node scripts/scrape-albathek.mjs /pfad/zur/spieleuebersicht.html --details
+```
 
-### Rechte
+Der Importer liest alle gefundenen Spielkarten, lädt öffentliche Kurzbeschreibungen und Materialangaben mit vier begrenzten Arbeitsläufen und schreibt den erzeugten Datensatz erst nach erfolgreichem vollständigem Abruf. Keine Anmeldung, keine Videos, keine geschützten Inhalte. Strukturänderungen der ALBA-Seiten erfordern einen geprüften Importer-Abgleich. Aktualisierungsdatum und erwartete Katalogzahl in Dokumentation/Tests nach einem neuen Import anpassen.
 
-Unabhängiger Challenge-Prototyp, kein offizielles Produkt von ALBA BERLIN. Marken, Bilder und redaktionelle Inhalte bleiben den jeweiligen Rechteinhabern zugeordnet. Die bereitgestellten Original-XLSX/PDF-Dateien werden nicht als vollständige Dateien veröffentlicht. Eine Open-Source-Lizenz für den Code ist noch abzustimmen; öffentliche Einsicht allein erteilt keine pauschalen Nutzungsrechte.
+Die XLSX-Verarbeitung benötigt Python mit `openpyxl`; die Originaldateien bleiben unverändert. Weitere Quellen und fachliche Interpretationen stehen in [ALBA-INPUT.md](docs/ALBA-INPUT.md).
 
-## Screenshots des ersten Prototyps · Juli 2026
+## Screenshots · korrigierter September-Stand
 
-Diese Ansichten dokumentieren den vorherigen Stand. Der September-Ausbau ersetzt die damalige grobe Filterung und den Demo-Katalog durch die oben beschriebene ALBA-Regellogik.
+![Katalog mit echten ALBA-Bildern](docs/screenshots/07-spiele-katalog.png)
+![Kompakte Navigation und Gruppenauswahl](docs/screenshots/06-katalog-start.png)
+![Coach mit drei unterschiedlichen Spielen](docs/screenshots/08-coach-sofortplan.png)
 
-![Startseite, Juli 2026](docs/screenshots/01-startseite.png)
-![Empfehlungen, Juli 2026](docs/screenshots/02-personalisierte-empfehlungen.png)
-![Coach AI, Juli 2026](docs/screenshots/03-coach-ai-match-lab.png)
-![Spielplan, Juli 2026](docs/screenshots/04-coach-ai-spielplan.png)
+[Mobile Navigation](docs/screenshots/05-mobile-navigation.png). Die Aufnahmen 01–04 im selben Ordner dokumentieren den historischen Juli-Prototyp.
 
-Der [Bewerbungsentwurf](docs/BEWERBUNG.md) bleibt als historischer Einreichungsstand vom 28.07.2026 erhalten.
+## Übergabe, Betrieb und Rechte
+
+Für den Produktivbetrieb: mit ALBA abgestimmte CMS-Anbindung und Nutzungsrechte, fachlich validierte Metadaten, Nutzertests, Barrierefreiheitsprüfung, Betriebskonzept, Schlüsselverwaltung und Kostenkontrolle. Ein öffentlicher GitHub-Codebestand macht die private Live-Site nicht automatisch öffentlich.
+
+Unabhängiger Challenge-Prototyp, kein offizielles Produkt von ALBA BERLIN. Marken, Bilder und redaktionelle Inhalte bleiben bei den Rechteinhabern. Die Original-XLSX/PDF-Dateien werden nicht als vollständige Dateien veröffentlicht. Eine Open-Source-Lizenz für den Code ist noch abzustimmen; öffentliche Einsicht allein erteilt keine pauschalen Nutzungsrechte.
+
+Der [Bewerbungsentwurf](docs/BEWERBUNG.md) bleibt historischer Einreichungsstand vom 28.07.2026. Persönliche Pflichtfelder und Einwilligungen wurden nicht erfunden; das Formular wurde nicht abgeschickt.
