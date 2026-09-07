@@ -38,6 +38,12 @@ Benutzerkonten und ist nicht für die Ablage sensibler Kinder-/Personendaten ged
 - Mit gültiger Anmeldung: Startseite HTTP 200 und `Cache-Control: private, no-store`.
 - Authentifizierter POST an `/api/coach` ohne OpenAI-Key: erwartete JSON-Validierungsantwort HTTP 400.
 - Kein Live-OpenAI-Aufruf für diese Hosting-Prüfung; kein API-Key übertragen.
+- Auch auf der produktiven Hauptadresse bestätigt: fehlendes/falsches Passwort HTTP 401,
+  gültige Anmeldung HTTP 200, JavaScript-Datei mit Anmeldung HTTP 200 und ohne HTTP 401,
+  Coach-API mit Anmeldung ohne OpenAI-Key erwartungsgemäß HTTP 400 (JSON).
+
+Produktions-Deploy: `6a9ec6db70febe558b6a4d0c`.
+[Deployment-Protokoll](https://app.netlify.com/projects/albathek-match/deploys/6a9ec6db70febe558b6a4d0c).
 
 Frontend-Screenshots: [Coach-UI-Prüfbericht](coach-ui-review.md).
 
@@ -46,6 +52,9 @@ Frontend-Screenshots: [Coach-UI-Prüfbericht](coach-ui-review.md).
 - Website: https://albathek-match.netlify.app
 - Verwaltung: https://app.netlify.com/projects/albathek-match
 - Deployment erfolgt per CLI; keine automatische GitHub-Build-Verknüpfung eingerichtet.
+- Immer den vollständigen `netlify deploy --prod`-Build verwenden. `--no-build`
+  überspringt die notwendigen Aufbereitungsschritte des Next.js-Adapters und kann
+  interne `.next`-Build-Dateien als öffentliche Artefakte auswählen.
 - `PUPPETEER_SKIP_DOWNLOAD=true` kann beim lokalen Netlify-Build nötig sein, wenn
   ein automatisch geladenes Netlify-Plugin einen Browser-Download anstößt. Für die
   Anwendung ist dieser Browser nicht erforderlich.
