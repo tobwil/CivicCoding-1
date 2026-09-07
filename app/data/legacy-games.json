@@ -1,0 +1,233 @@
+[
+  {
+    "id": "6",
+    "title": "Kartenstaffel: Mit Reifen",
+    "href": "https://albathek.de/spiele/kartenstaffel-bewegungsspiel-und-memory-im-team/kartenstaffel-mit-reifen",
+    "image": "/games/kartenstaffel.jpg",
+    "audience": [
+      "grundschule"
+    ],
+    "sizes": [
+      "mittel",
+      "gross"
+    ],
+    "durations": [
+      20,
+      30
+    ],
+    "goals": [
+      "Teamgefühl",
+      "Koordination",
+      "Auspowern"
+    ],
+    "materials": [
+      "Reifen",
+      "Hütchen"
+    ],
+    "type": "Variation",
+    "quick": false,
+    "rating": 4
+  },
+  {
+    "id": "7",
+    "title": "Räuberhöhle: Fangspiel und Schatzjagd",
+    "href": "https://albathek.de/spiele/rauberhohle-fangspiel-und-schatzjagd",
+    "image": "/games/raeuberhoehle.jpg",
+    "audience": [
+      "grundschule"
+    ],
+    "sizes": [
+      "mittel",
+      "gross"
+    ],
+    "durations": [
+      20,
+      30,
+      45
+    ],
+    "goals": [
+      "Teamgefühl",
+      "Auspowern",
+      "Koordination"
+    ],
+    "materials": [
+      "Hütchen",
+      "Ohne"
+    ],
+    "type": "Grundspiel",
+    "quick": false
+  },
+  {
+    "id": "10",
+    "title": "Funiño: Spielwitz im Basketball",
+    "href": "https://albathek.de/spiele/funino-spielwitz-im-basketball",
+    "image": "/games/funino.jpg",
+    "audience": [
+      "grundschule"
+    ],
+    "sizes": [
+      "klein",
+      "mittel"
+    ],
+    "durations": [
+      20,
+      30,
+      45
+    ],
+    "goals": [
+      "Ballgefühl",
+      "Teamgefühl",
+      "Koordination"
+    ],
+    "materials": [
+      "Bälle",
+      "Hütchen"
+    ],
+    "type": "Grundspiel",
+    "quick": true
+  },
+  {
+    "id": "15",
+    "title": "King Kong kommt: Monströses Fangspiel",
+    "href": "https://albathek.de/spiele/king-kong-kommt-monstroses-fangspiel",
+    "image": "/games/king-kong.jpg",
+    "audience": [
+      "kita",
+      "grundschule"
+    ],
+    "sizes": [
+      "mittel",
+      "gross"
+    ],
+    "durations": [
+      10,
+      20,
+      30
+    ],
+    "goals": [
+      "Auspowern",
+      "Koordination"
+    ],
+    "materials": [
+      "Ohne",
+      "Hütchen"
+    ],
+    "type": "Grundspiel",
+    "quick": true
+  },
+  {
+    "id": "17",
+    "title": "Gagaball: Zielspiel mit rollenden Bällen",
+    "href": "https://albathek.de/spiele/gagaball-zielspiel-mit-rollenden-ballen",
+    "image": "/games/gagaball.jpg",
+    "audience": [
+      "grundschule"
+    ],
+    "sizes": [
+      "mittel",
+      "gross"
+    ],
+    "durations": [
+      20,
+      30,
+      45
+    ],
+    "goals": [
+      "Ballgefühl",
+      "Auspowern",
+      "Koordination"
+    ],
+    "materials": [
+      "Bälle",
+      "Hütchen"
+    ],
+    "type": "Grundspiel",
+    "quick": false
+  },
+  {
+    "id": "20",
+    "title": "Schlangendiebe: Schnelles Laufspiel in Teams",
+    "href": "https://albathek.de/spiele/schlangendiebe-schnelles-laufspiel-in-teams-fur-kinder",
+    "image": "/games/schlangendiebe.jpg",
+    "audience": [
+      "grundschule"
+    ],
+    "sizes": [
+      "mittel",
+      "gross"
+    ],
+    "durations": [
+      20,
+      30
+    ],
+    "goals": [
+      "Teamgefühl",
+      "Auspowern",
+      "Koordination"
+    ],
+    "materials": [
+      "Hütchen",
+      "Ohne"
+    ],
+    "type": "Grundspiel",
+    "quick": false
+  },
+  {
+    "id": "23",
+    "title": "Hundehütte: Rasantes Lauf- und Fangspiel",
+    "href": "https://albathek.de/spiele/hundehutte-rasantes-lauf-und-fangspiel",
+    "image": "/games/hundehuette.jpg",
+    "audience": [
+      "grundschule"
+    ],
+    "sizes": [
+      "mittel",
+      "gross"
+    ],
+    "durations": [
+      10,
+      20,
+      30
+    ],
+    "goals": [
+      "Auspowern",
+      "Teamgefühl"
+    ],
+    "materials": [
+      "Ohne",
+      "Hütchen"
+    ],
+    "type": "Grundspiel",
+    "quick": true
+  },
+  {
+    "id": "30",
+    "title": "Küstenwache: Fangspiel auf hoher See",
+    "href": "https://albathek.de/spiele/kustenwache-fangspiel-auf-hoher-see",
+    "image": "/games/kuestenwache.jpg",
+    "audience": [
+      "kita",
+      "grundschule"
+    ],
+    "sizes": [
+      "mittel",
+      "gross"
+    ],
+    "durations": [
+      10,
+      20,
+      30
+    ],
+    "goals": [
+      "Auspowern",
+      "Koordination",
+      "Teamgefühl"
+    ],
+    "materials": [
+      "Ohne",
+      "Hütchen"
+    ],
+    "type": "Grundspiel",
+    "quick": true
+  }
+]

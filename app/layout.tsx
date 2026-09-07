@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import "./alba.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headerList = await headers();

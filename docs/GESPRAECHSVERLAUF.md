@@ -1,6 +1,6 @@
 # Gesprächs- und Entscheidungsverlauf
 
-Stand: 28.07.2026
+Stand: 07.09.2026 (Juli-Verlauf mit September-Fortsetzung)
 
 Dieses Protokoll sichert die **sichtbaren Projektgespräche** und die daraus entstandenen Produktentscheidungen. Interne Systemhinweise, Werkzeugausgaben, Zugangsdaten und nicht sichtbare Arbeitsnotizen sind bewusst nicht enthalten. Formulierungen des Assistenten sind dort zusammengefasst, wo der vollständige technische Arbeitsstrom für die Projektübergabe keinen Mehrwert bietet.
 
@@ -78,7 +78,17 @@ Danach wurden sämtliche Felder des Civic-Coding-Formulars als Arbeitsgrundlage 
 
 Der Prototyp ist als Frontend end-to-end nutzbar. Für den produktiven Einsatz sind insbesondere der vollständige Datenzugang, die gemeinsame Validierung mit ALBA, ein Produktionskonzept für die KI, rechtliche Klärungen sowie Pilot- und Wirkungstests nötig. Diese Punkte sind nicht bloß Restarbeiten, sondern die geeigneten Inhalte für den Co-Creation-Prozess im Accelerator.
 
-## Verweise
+## Ausbau mit ALBA-Unterlagen · 07.09.2026
+
+**Nutzer:**
+
+> bitte funktion ausbauen, mehr spiele involvieren und den neuen input von alba mit verwenden
+
+Bereitgestellt wurden die Contenttabelle mit zehn Testspielen, die Regelübersicht für Kita/Grundschule/Verein und das SPORT-VERNETZT-Rahmenwerk für Coaches.
+
+**Umsetzung:** Zehn vollständige ALBA-Spielanleitungen ergänzen die acht bisherigen Spiele. Profession, Erfahrungsstufe, Räume, exakte Gruppengrößen, Sportkleidung und Bewegungsanlässe bestimmen die Auswahl. Ausschlussgründe sind sichtbar. Coach AI analysiert die Situation, lässt die Regeln erneut prüfen und plant nur aus zulässigen Spielen. Das Rahmenwerk prägt altersabhängige Coach-Hinweise und die Planung. Die genauen Quellzuordnungen, Datenlücken und fachlichen Interpretationen stehen in [ALBA-INPUT.md](ALBA-INPUT.md).
+
+## Verweise auf Dokumentation
 
 - [Projektübersicht](../README.md)
 - [Bewerbungsentwurf](BEWERBUNG.md)

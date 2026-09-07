@@ -1,97 +1,17 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
-type SuggestedGame = {
-  id: string;
-  title: string;
-  href: string;
-  image: string;
-};
+import { buildDemoPlan, settings, type Choice, type Game, type Plan } from "../lib/alba";
 
-type CoachContext = {
-  age: string;
-  size: string;
-  duration: number;
-  goal: string;
-  material: string;
-};
-
-type TimelineItem = {
-  phase: string;
-  duration: number;
-  title: string;
-  gameId: string;
-  reason: string;
-  tip: string;
-};
-
-type CoachPlan = {
-  headline: string;
-  read: string;
-  coachNote: string;
-  timeline: TimelineItem[];
-};
-
-type Props = {
-  context: CoachContext;
-  recommendations: SuggestedGame[];
-};
-
+type Props = { context: Choice; recommendations: Game[]; excludedIds: string[] };
 const starterPrompts = [
-  "25 müde Kinder, kleine Halle, nur zwei Bälle",
-  "Die Gruppe ist wild und muss als Team zusammenfinden",
-  "Spontane Vertretungsstunde ohne Vorbereitung",
+  "12 Kinder, Sporthalle, 20 Minuten – gemeinsam in Bewegung kommen",
+  "6 Kinder, 5 Jahre, Bewegungsraum, 15 Minuten",
+  "16 Kinder, Outdoor, 30 Minuten – alle sollen mitspielen",
 ];
 
-function buildDemoPlan(
-  prompt: string,
-  context: CoachContext,
-  games: SuggestedGame[],
-): CoachPlan {
-  const first = games[0];
-  const second = games[1] ?? first;
-  const third = games[2] ?? second;
-  const total = Math.max(context.duration, 20);
-  const warmup = Math.max(4, Math.round(total * 0.2));
-  const finish = Math.max(4, Math.round(total * 0.2));
-  const main = Math.max(10, total - warmup - finish);
-
-  return {
-    headline: "Erst sammeln. Dann zünden.",
-    read: `Ich lese aus „${prompt}“: Die Gruppe braucht einen schnellen Einstieg, klare Rollen und ein gemeinsames Erfolgserlebnis.`,
-    coachNote:
-      "Erkläre nur die erste Runde. Die nächste Regel kommt erst dazu, wenn alle in Bewegung sind.",
-    timeline: [
-      {
-        phase: "ANKOMMEN",
-        duration: warmup,
-        title: first?.title ?? "Schneller Gruppenstart",
-        gameId: first?.id ?? "",
-        reason: "holt alle ohne lange Erklärung in die Bewegung",
-        tip: "Beginne in Zeitlupe und gib nach 60 Sekunden Tempo frei.",
-      },
-      {
-        phase: "ACTION",
-        duration: main,
-        title: second?.title ?? "Team-Challenge",
-        gameId: second?.id ?? "",
-        reason: `verbindet ${context.goal} mit einem klaren gemeinsamen Auftrag`,
-        tip: "Wechsle Teams lieber klein und schnell als mit langer Pause.",
-      },
-      {
-        phase: "LANDEN",
-        duration: finish,
-        title: third?.title ?? "Gemeinsamer Abschluss",
-        gameId: third?.id ?? "",
-        reason: "nimmt Energie auf und lässt die Einheit positiv enden",
-        tip: "Letzte Runde: Die Gruppe entscheidet gemeinsam über eine Regel.",
-      },
-    ],
-  };
-}
-
-export function CoachAI({ context, recommendations }: Props) {
+export function CoachAI({ context, recommendations, excludedIds }: Props) {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -100,8 +20,17 @@ export function CoachAI({ context, recommendations }: Props) {
   const [model, setModel] = useState("gpt-5.6-luna");
   const [isLive, setIsLive] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [plan, setPlan] = useState<CoachPlan | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [error, setError] = useState("");
+  const requestId = useRef(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    requestId.current += 1;
+    // A changed group or exclusion invalidates an earlier plan.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPlan(null);
+    setLoading(false);
+  }, [context, excludedIds]);
 
   useEffect(() => {
     const savedKey = window.sessionStorage.getItem("albathek-openai-key") ?? "";
@@ -118,13 +47,23 @@ export function CoachAI({ context, recommendations }: Props) {
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
+    const previousFocus = document.activeElement as HTMLElement | null;
     document.body.style.overflow = "hidden";
+    const focusFrame = requestAnimationFrame(() => dialogRef.current?.querySelector<HTMLTextAreaElement>("textarea")?.focus());
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
+      if (event.key === "Tab") {
+        const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea, a[href], summary') ?? []).filter(el => el.getClientRects().length);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => {
       document.body.style.overflow = previous;
+      cancelAnimationFrame(focusFrame);
+      previousFocus?.focus();
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [open]);
@@ -135,6 +74,9 @@ export function CoachAI({ context, recommendations }: Props) {
   );
 
   function saveSettings() {
+    requestId.current += 1;
+    setPlan(null);
+    setLoading(false);
     if (apiKey.trim()) {
       window.sessionStorage.setItem("albathek-openai-key", apiKey.trim());
       setIsLive(true);
@@ -148,6 +90,9 @@ export function CoachAI({ context, recommendations }: Props) {
   }
 
   function clearKey() {
+    requestId.current += 1;
+    setPlan(null);
+    setLoading(false);
     setApiKey("");
     setIsLive(false);
     window.sessionStorage.removeItem("albathek-openai-key");
@@ -157,6 +102,7 @@ export function CoachAI({ context, recommendations }: Props) {
     event.preventDefault();
     const cleanPrompt = prompt.trim();
     if (!cleanPrompt) return;
+    const currentRequest = ++requestId.current;
     setLoading(true);
     setPlan(null);
     setError("");
@@ -164,7 +110,8 @@ export function CoachAI({ context, recommendations }: Props) {
     try {
       if (!apiKey.trim()) {
         await new Promise((resolve) => window.setTimeout(resolve, 850));
-        setPlan(buildDemoPlan(cleanPrompt, context, recommendations));
+        const demo = buildDemoPlan(cleanPrompt, context, excludedIds);
+        if (currentRequest === requestId.current) setPlan(demo);
         return;
       }
 
@@ -176,22 +123,25 @@ export function CoachAI({ context, recommendations }: Props) {
           context,
           apiKey: apiKey.trim(),
           model,
+          excludedIds,
         }),
       });
       const payload = await response.json();
       if (!response.ok) {
         throw new Error(payload.error ?? "Coach AI ist gerade nicht erreichbar.");
       }
+      if (currentRequest !== requestId.current) return;
       setPlan(payload.plan);
       setIsLive(true);
     } catch (requestError) {
+      if (currentRequest !== requestId.current) return;
       setError(
         requestError instanceof Error
           ? requestError.message
           : "Coach AI ist gerade nicht erreichbar.",
       );
     } finally {
-      setLoading(false);
+      if (currentRequest === requestId.current) setLoading(false);
     }
   }
 
@@ -204,17 +154,16 @@ export function CoachAI({ context, recommendations }: Props) {
         <div className="coach-launch-copy">
           <div className="ai-label">
             <span>✦</span> COACH AI
-            <small>{isLive ? "OPENAI LIVE" : "DEMO READY"}</small>
+            <small>{isLive ? "OPENAI LIVE" : "OFFLINE BEREIT"}</small>
           </div>
           <h2>
-            Kein Filter.
+            Dein Moment.
             <br />
-            <em>Einfach erzählen.</em>
+            <em>Eure Einheit.</em>
           </h2>
           <p>
             „Die Halle ist klein, die Kinder sind laut und ich habe 20
-            Minuten.“ Coach AI versteht den Moment und baut daraus deine
-            komplette Einheit.
+            Minuten.“ Coach AI berücksichtigt eure Bedingungen und die neuen ALBA-Spielanleitungen.
           </p>
           <button type="button" onClick={() => setOpen(true)}>
             Coach AI starten <span>→</span>
@@ -225,7 +174,7 @@ export function CoachAI({ context, recommendations }: Props) {
             <span className="coach-pulse" />
             MATCH-LAB / BEREIT
           </div>
-          <p>„24 Kinder. Wenig Platz. Viel Energie.“</p>
+          <p>„12 Kinder. Sporthalle. Viel Energie.“</p>
           <div className="coach-mini-plan">
             <span>05′</span>
             <strong>Ankommen</strong>
@@ -236,7 +185,7 @@ export function CoachAI({ context, recommendations }: Props) {
             <span>05′</span>
             <strong>Landen</strong>
           </div>
-          <small>3 Spiele · 1 roter Faden · 0 Leerlauf</small>
+          <small>ALBA-Spiele · geprüfte Auswahl · ein roter Faden</small>
         </div>
       </section>
 
@@ -251,7 +200,7 @@ export function CoachAI({ context, recommendations }: Props) {
       </button>
 
       {open && (
-        <div className="coach-overlay" role="dialog" aria-modal="true" aria-labelledby="coach-title">
+        <div ref={dialogRef} className="coach-overlay" role="dialog" aria-modal="true" aria-labelledby="coach-title">
           <div className="coach-shell">
             <header className="coach-header">
               <div className="wordmark coach-wordmark">
@@ -260,7 +209,7 @@ export function CoachAI({ context, recommendations }: Props) {
               </div>
               <div className="coach-status">
                 <span className={isLive ? "live" : ""} />
-                {isLive ? "OPENAI LIVE" : "DEMO-MODUS"}
+                {isLive ? "OPENAI LIVE" : "OHNE KI · REGELBASIERT"}
               </div>
               <div className="coach-header-actions">
                 <button
@@ -353,7 +302,7 @@ export function CoachAI({ context, recommendations }: Props) {
                   <em>wirklich los?</em>
                 </h2>
                 <p className="coach-subline">
-                  Kein Formular. Keine perfekten Angaben. Sag es so, wie es ist.
+                  Beschreibe eure Situation. Alter, Anzahl, Raum und Zeit werden für den Plan erneut geprüft. Ohne API-Key nutzt du den regelbasierten Offline-Planer.
                 </p>
 
                 <form onSubmit={generatePlan}>
@@ -361,7 +310,7 @@ export function CoachAI({ context, recommendations }: Props) {
                     <span className="sr-only">Situation beschreiben</span>
                     <textarea
                       value={prompt}
-                      onChange={(event) => setPrompt(event.target.value)}
+                      onChange={(event) => { setPrompt(event.target.value); setPlan(null); requestId.current += 1; setLoading(false); }}
                       placeholder="Zum Beispiel: 25 müde Kinder, kleine Halle und nur zwei Bälle …"
                       rows={4}
                       maxLength={800}
@@ -379,18 +328,18 @@ export function CoachAI({ context, recommendations }: Props) {
                 <div className="starter-prompts">
                   <p>ODER SCHNELL STARTEN MIT</p>
                   {starterPrompts.map((starter) => (
-                    <button type="button" key={starter} onClick={() => setPrompt(starter)}>
+                    <button type="button" key={starter} onClick={() => { setPrompt(starter); setPlan(null); requestId.current += 1; setLoading(false); }}>
                       {starter}
                     </button>
                   ))}
                 </div>
 
                 <div className="context-ribbon">
-                  <span>{context.age}</span>
-                  <span>{context.size} Kinder</span>
+                  <span>{settings[context.setting]} · ab {context.age} Jahren</span>
+                  <span>{context.children} Kinder</span>
                   <span>{context.duration} Min.</span>
                   <span>{context.goal}</span>
-                  <span>{context.material}</span>
+                  <span>{context.room}</span>
                 </div>
               </section>
 
@@ -402,8 +351,8 @@ export function CoachAI({ context, recommendations }: Props) {
                       <span />
                       <span />
                     </div>
-                    <p>Ich lese die Energie im Raum …</p>
-                    <small>Situation → Dynamik → Spielfluss</small>
+                    <p>Ich prüfe Bedingungen und passende Spiele …</p>
+                    <small>Situation → ALBA-Regeln → Spielplan</small>
                   </div>
                 )}
 
@@ -421,7 +370,7 @@ export function CoachAI({ context, recommendations }: Props) {
                 {error && !loading && (
                   <div className="coach-error">
                     <span>!</span>
-                    <h3>Kurzer Timeout.</h3>
+                    <h3>Diese Einheit braucht noch eine Anpassung.</h3>
                     <p>{error}</p>
                     <button type="button" onClick={() => setSettingsOpen(true)}>
                       OpenAI-Einstellungen prüfen
@@ -433,10 +382,12 @@ export function CoachAI({ context, recommendations }: Props) {
                   <div className="generated-plan">
                     <div className="plan-topline">
                       <span>DEIN SPIELPLAN</span>
-                      <small>{isLive ? model.toUpperCase() : "DEMO INTELLIGENCE"}</small>
+                      <small>{isLive ? model.toUpperCase() : "REGELBASIERTER PLAN"}</small>
                     </div>
                     <h3>{plan.headline}</h3>
                     <p className="plan-read">{plan.read}</p>
+                    <div className="context-ribbon"><span>Für {plan.context.children} Kinder</span><span>ab {plan.context.age} Jahren</span><span>{plan.context.room}</span><span>{plan.context.duration} Minuten</span></div>
+                    {plan.warnings.map(note => <p className="plan-warning" key={note}>{note}</p>)}
                     <div className="timeline">
                       {plan.timeline.map((item, index) => {
                         const game = gameMap.get(item.gameId);
@@ -455,9 +406,7 @@ export function CoachAI({ context, recommendations }: Props) {
                               <span>{item.reason}</span>
                               <small>COACH-TIPP · {item.tip}</small>
                               {game && (
-                                <a href={game.href} target="_blank" rel="noreferrer">
-                                  Spiel öffnen ↗
-                                </a>
+                                <details><summary>ALBA-Anleitung & Material öffnen</summary><p><strong>Material:</strong> {game.materials}</p><ol>{game.steps.map((step,i)=><li key={i}>{step}</li>)}</ol><small>ALBA-Contenttabelle, Zeile {game.sourceRow} · {game.coach}</small></details>
                               )}
                             </div>
                           </article>
@@ -468,6 +417,7 @@ export function CoachAI({ context, recommendations }: Props) {
                       <span>ALBA COACH NOTE</span>
                       <p>„{plan.coachNote}“</p>
                     </div>
+                    <button type="button" className="print-plan" onClick={() => window.print()}>Spielplan drucken</button>
                     <button type="button" className="plan-again" onClick={() => setPlan(null)}>
                       Neue Situation <span>↻</span>
                     </button>

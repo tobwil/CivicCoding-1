@@ -1,167 +1,113 @@
 # ALBAthek Match
 
-**Intelligente Spielideen-Empfehlung und Coach AI für ALBAthek**
+**Passende Bewegungsspiele für Kita, Grundschule und Verein – mit Coach AI.**
 
-[Live-Prototyp öffnen](https://albathek-match.dahoooo.chatgpt.site) · [Bewerbungsentwurf](docs/BEWERBUNG.md) · [Projektverlauf](docs/GESPRAECHSVERLAUF.md)
+[Bisherige Live-Version](https://albathek-match.dahoooo.chatgpt.site) · [ALBA-Daten & Regelentscheidungen](docs/ALBA-INPUT.md) · [Gesprächsverlauf](docs/GESPRAECHSVERLAUF.md)
 
-ALBAthek Match macht die große Spielesammlung von ALBA BERLIN in wenigen Sekunden persönlich nutzbar. Menschen, die Sport- und Bewegungsangebote mit Kindern anleiten, geben Alter, Gruppengröße, Zeit, Ziel und vorhandenes Material an. Die Oberfläche priorisiert passende Spiele, erklärt jeden Treffer und führt direkt zur vollständigen Spielanleitung in der ALBAthek.
+## Ausbau mit ALBA-Input · September 2026
 
-Der zusätzliche **Coach AI** versteht freie Alltagsschilderungen wie „25 müde Kinder, kleine Halle, nur zwei Bälle“ und baut daraus einen sofort nutzbaren Ablauf aus Ankommen, Action und Landen.
+Der Katalog enthält **18 Spiele**: zehn neue, detailliert beschriebene Testspiele von ALBA sowie die acht bisher integrierten Spiele. Die neue Auswahl berücksichtigt die Contenttabelle, die Regelübersicht für Kita/Grundschule/Verein und das SPORT-VERNETZT-Rahmenwerk für Coaches.
 
-> Status: funktionaler, mobil nutzbarer Prototyp für die Civic-Coding-Challenge 1. Die Oberfläche arbeitet derzeit mit einer kuratierten Stichprobe von acht echten ALBAthek-Spielen. Die produktive Anbindung des vollständigen ALBAthek-Katalogs ist Teil der Übergabe und gemeinsamen Weiterentwicklung mit ALBA BERLIN.
-
-## So fühlt es sich an
-
-### 1. Situation statt Katalog
-
-![ALBAthek Match Startseite](docs/screenshots/01-startseite.png)
-
-### 2. Erklärbare, sofort reagierende Empfehlungen
-
-![Personalisierte Empfehlungen](docs/screenshots/02-personalisierte-empfehlungen.png)
-
-### 3. Freie Eingabe im Coach AI Match-Lab
-
-![Coach AI Match-Lab](docs/screenshots/03-coach-ai-match-lab.png)
-
-### 4. Eine komplette, umsetzbare Einheit
-
-![Von Coach AI erzeugter Spielplan](docs/screenshots/04-coach-ai-spielplan.png)
+Die zehn neuen Spiele sind Gartenzwerge, Papprollenangeln, Mäuschen aus dem Haus, Flaschenkegeln, Zauberball mit mehreren Fangkindern, Heiße Kartoffel mit Reifen, Jahreszeitenlauf, Schmuggel-Ei, Osterhase und Krokodil sowie Gespensterparty.
 
 ## Für Nutzerinnen und Nutzer
 
-1. Rahmenbedingungen auswählen: Kita oder Grundschule, Gruppengröße, Dauer, Ziel und Material.
-2. Empfehlungen vergleichen: Die besten Treffer stehen oben und zeigen Match-Wert sowie eine verständliche Begründung.
-3. Suchen, merken oder unpassende Ergebnisse ausblenden.
-4. Die Originalanleitung des Spiels direkt auf ALBAthek.de öffnen.
-5. Optional Coach AI starten, eine Situation frei beschreiben und einen dreiteiligen Ablauf erhalten.
+1. Setting und Profession wählen.
+2. Jüngstes Alter, Erfahrung der Gruppe, Kinderzahl, Raum und Zeit einstellen.
+3. Sportkleidung und gegebenenfalls Bewegungsanlass berücksichtigen.
+4. Optional nach Ziel, Material, Vorbereitung, Regeln, Intensität oder Sozialform eingrenzen.
+5. Spiel, Thema, Bewegung oder Material suchen und die passende Anleitung direkt öffnen.
+6. Spiele merken oder für heute ausblenden. „Warum fehlen Spiele?“ zeigt konkrete Ausschlussgründe.
+7. Coach AI öffnen: Situation beschreiben, geprüften Spielplan erhalten, Originalabläufe lesen und den Plan drucken.
 
-Coach AI funktioniert ohne Einrichtung im **Demo-Modus**. Für eine echte KI-Anfrage kann in den OpenAI-Einstellungen ein eigener API-Key hinterlegt werden. Der Key bleibt im `sessionStorage` des aktuellen Tabs, wird nicht in einer Datenbank des Prototyps gespeichert und kann jederzeit entfernt werden. Live-Anfragen können Kosten im jeweiligen OpenAI-Konto auslösen.
+Ab 30 Minuten erscheinen die von ALBA angegebenen Jahreskalender beziehungsweise Sport-Mini-Reihen. Die Coach-Hinweise richten sich nach Alter und Setting: Bewegungszeit, Mitspielen, Materialerfahrung, Entscheidungsfreiheit und Reflexion.
 
-## Was heute funktioniert
+### Warum manche Kombinationen keine Spiele liefern
 
-- reaktive Personalisierung nach fünf alltagsnahen Kriterien
-- gewichtetes Ranking statt harter „kein Treffer“-Filter
-- sichtbarer Match-Wert und konkrete Begründung pro Empfehlung
-- Volltextsuche, Merkliste im Browser und Ausblenden einzelner Treffer
-- Links zu den originalen Spielanleitungen auf ALBAthek.de
-- responsive ALBA-nahe Gestaltung für Desktop und Smartphone
-- Coach AI mit freier Texteingabe, Demo-Modus und optionalem OpenAI-Live-Modus
-- strukturierter KI-Output mit genau drei Phasen und ausschließlich erlaubten Spielen
-- keine Registrierung und keine Erfassung von Daten über Kinder
+ALBAs Einsteigerregeln verlangen gemeinsam wenige Regeln, minimale Vorbereitung, ein kleines Spiel und die Einstufung „Knaller“. Der aktuelle Zehner-Testkatalog enthält kein Spiel, das alle Kriterien zugleich erfüllt. Die App zeigt diese Datenlücke offen. Für Kita-Gruppen ab 13 Kindern sind nur ausgewiesene Outdoor-Spiele erlaubt; im Kita-Bewegungsraum wird die maximale Hallenkapazität geviertelt.
 
-## Lösungslogik
+Die acht bisherigen Spiele bleiben in „Aus der bisherigen Sammlung“ verlinkt. Ihnen fehlen die neuen Metadaten, deshalb werden sie nicht automatisch als passende Planbausteine eingesetzt.
+
+## Coach AI und OpenAI-Einstellungen
+
+Ohne Key funktioniert ein **regelbasierter Offline-Planer**. Er erkennt einfache Angaben zu Anzahl, Alter, Raum und Zeit. Die angezeigte Dauer ergibt exakt die verfügbare Gesamtzeit. Offline wird keine freie KI-Interpretation behauptet.
+
+Für KI-Planung: Coach AI → OpenAI → eigenen API-Key eintragen → für diese Sitzung verwenden. Der Key liegt im Tab-`sessionStorage`, wird bei einer Anfrage an den eigenen Server und von dort an OpenAI gesendet. Die Anwendung speichert ihn nicht in einer Datenbank. Entfernen ist jederzeit möglich. Live-Planungen können zwei kostenpflichtige Modellanfragen auslösen.
+
+Die Live-Planung liest zuerst die Situation, prüft die daraus erkannten Bedingungen erneut gegen ALBAs Regeln und erstellt anschließend einen Plan ausschließlich aus der zulässigen Auswahl. Bei fehlendem Material oder unklaren Mengen fragt sie nach. Rahmenbedingungen und Originalmaterialien stehen beim Ergebnis zur Kontrolle.
+
+## Architektur
 
 ```mermaid
 flowchart LR
-    A["Alter, Gruppe, Zeit,<br/>Ziel, Material"] --> B["Erklärbares<br/>gewichtetes Ranking"]
-    K["Freie Alltagssituation"] --> C["Coach AI"]
-    D["ALBAthek-Katalog<br/>(Prototyp: 8 Spiele)"] --> B
-    D --> C
-    B --> E["Sortierte Treffer<br/>mit Match-Grund"]
-    C --> F["Ankommen · Action · Landen"]
-    E --> G["Originalanleitung<br/>auf ALBAthek.de"]
-    F --> G
+    A["ALBA-Contenttabelle"] --> B["Gemeinsamer Spielkatalog"]
+    R["Regelübersicht"] --> F["Auswahlprüfung"]
+    U["Setting · Profession · Gruppe · Raum"] --> F
+    B --> F
+    F --> E["Treffer + Ausschlussgründe"]
+    P["Freie Situation"] --> X["KI erkennt Bedingungen"]
+    X --> F
+    F --> C["KI plant aus zulässigen Spielen"]
+    W["SPORT VERNETZT Rahmenwerk"] --> C
+    C --> V["IDs + Phasen prüfen / Zeiten setzen"]
+    V --> O["Spielplan + Originalabläufe"]
 ```
 
-Das regelbasierte Ranking startet mit einem neutralen Grundwert. Passende Merkmale erhöhen den Score mit bewusst nachvollziehbaren Gewichten: Ziel und Altersgruppe zählen stärker als optionale Komfortmerkmale. Dadurch bleibt die Ergebnisliste auch bei ungewöhnlichen Kombinationen hilfreich.
-
-Coach AI sendet Situationsbeschreibung, aktuelle Filterwahl und einen begrenzten Spielkatalog an die OpenAI Responses API. Ein striktes JSON-Schema erzwingt drei Phasen, plausible Zeitwerte und gültige Spiel-IDs. `store: false` verhindert die Speicherung der Response durch die API-Konfiguration. Die KI ergänzt damit die deterministische Suche; sie ersetzt weder die redaktionellen Originalinhalte noch die Entscheidung der anleitenden Person.
-
-## Technische Perspektive
-
-### Stack
-
-- React 19 und TypeScript
-- Next.js 16 auf [vinext](https://github.com/cloudflare/vinext)
-- Vite und Cloudflare Workers/Sites
-- OpenAI Responses API mit Structured Outputs
-- CSS ohne UI-Framework; keine Datenbank im Prototyp
+- **React 19 / TypeScript**, Next.js auf vinext, Vite, Cloudflare Workers/Sites.
+- **Keine Datenbank:** Favoriten sind gerätelokal, OpenAI-Einstellungen sitzungsbezogen.
+- **Ein Katalog für Finder und API:** keine auseinanderlaufenden Duplikate.
+- **Deterministische Ausschlüsse:** Alter, Raum, Gruppengröße, Profession, Sportkleidung, Anlass und zusätzliche Filter.
+- **Priorisierung:** Zielbezug und Vorbereitungsaufwand sortieren innerhalb der passenden Spiele; keine erfundenen Match-Prozentwerte.
+- **OpenAI Responses API:** zwei Schritte mit Structured Outputs, `store: false`, Zeitlimits und Fehlerbehandlung.
+- **Validierung:** Eingabebereiche, Materialauswahl, gültige Spiel-IDs, kanonische Titel, Phasenfolge und exakte Zeitaufteilung.
 
 ### Projektstruktur
 
 ```text
-app/
-  api/coach/route.ts       OpenAI-Proxy und strukturiertes Antwortschema
-  components/CoachAI.tsx   Coach-AI-Oberfläche, Settings und Demo-Modus
-  page.tsx                 Katalog, Ranking, Suche und Merkliste
-  globals.css              ALBA-nahe Gestaltung und Responsive Design
-docs/
-  BEWERBUNG.md             Ausformulierter Accelerator-Antrag
-  GESPRAECHSVERLAUF.md     Sichtbarer Projekt- und Entscheidungsverlauf
-  screenshots/             Produktansichten
-public/games/              Bilder der kuratierten ALBAthek-Stichprobe
-tests/                     automatisierte Produktprüfungen
+app/data/alba-games.json      Zehn ALBA-Spiele mit Originalfeldern und Quellzeilen
+app/data/legacy-games.json    Acht bisherige Spiele
+app/lib/alba.ts               Gemeinsame Regeln, Suche, Leitlinien und Offline-Plan
+app/page.tsx                  Finder, Details, Favoriten, Kalender und Sammlung
+app/components/CoachAI.tsx    Coach, Settings und druckbarer Plan
+app/api/coach/route.ts        Situationsanalyse und regelgebundene KI-Planung
+app/alba.css                  Erweiterung des bestehenden ALBA-Designs
+scripts/import-alba.py        Reproduzierbarer, lesender XLSX-Import
+tests/product.test.mjs        Ausführbare Regel- und API-Tests
+docs/ALBA-INPUT.md            Quellen, offene Punkte und Interpretationen
 ```
 
-### Lokal starten
+### Lokal starten und prüfen
 
-Voraussetzung ist Node.js `>=22.13.0`.
+Node.js >=22.13.0:
 
 ```bash
 npm install
 npm run dev
-```
-
-Danach läuft die Anwendung unter `http://localhost:3000`.
-
-```bash
-npm run lint
 npm test
-npm run build
+npm run lint
 ```
 
-Ein OpenAI-Key ist für Entwicklung und Demo nicht erforderlich. Für einen Live-Test: Coach AI öffnen → **OpenAI** → Key und Modell auswählen → **Für diese Sitzung verwenden**.
+Die Oberfläche läuft unter http://localhost:3000. Für Demo und Tests ist kein API-Key nötig. Die Tests prüfen die tatsächliche Regel- und API-Logik mit kontrollierten Modellantworten; sie führen keine kostenpflichtigen Live-Anfragen aus.
 
-### API und Datenschutz
+Der Importer benötigt Python und `openpyxl` und gibt JSON auf stdout aus. Er verändert die Quelldatei nicht. Die verwendeten Dateien und Normalisierungen sind in [ALBA-INPUT.md](docs/ALBA-INPUT.md) beschrieben.
 
-`POST /api/coach` akzeptiert:
+### Grenzen und Übergabe
 
-```json
-{
-  "prompt": "25 müde Kinder, kleine Halle, nur zwei Bälle",
-  "context": {
-    "age": "grundschule",
-    "size": "gross",
-    "duration": 20,
-    "goal": "Teamgefühl",
-    "material": "Bälle"
-  },
-  "apiKey": "nur im Request",
-  "model": "gpt-5.6-luna"
-}
-```
+Die Regelblätter für Grundschule und Verein sind ALBA-Entwürfe. Raumskalierung, nicht mitgelieferte Taxonomie-Anhänge, Materialmengen, Alters-Obergrenzen und die genaue Einheitenstruktur benötigen noch fachlichen Abgleich. Die Dreiteilung und Zeiteinteilung sind Vorschläge des Prototyps. Fehlende Quellwerte bleiben sichtbar.
 
-Der Endpunkt begrenzt die Eingabe auf 800 Zeichen, erlaubt nur konfigurierte Modelle und fordert per JSON-Schema genau drei Zeitplan-Elemente an. Im aktuellen Bring-your-own-key-Prototyp passiert der Key zwar keinen persistenten Speicher, wird aber über den eigenen Server an OpenAI weitergereicht. Für einen öffentlichen Produktivbetrieb sind deshalb serverseitiges Secret-Management, Authentifizierung, Rate-Limits, Abuse-Schutz, Monitoring und ein belastbares Datenschutzkonzept vorgesehen.
+Ein öffentlicher Produktivbetrieb braucht weiterhin eine vollständige Katalog-/CMS-Anbindung, gemeinsame Tests mit Anleitenden, Betriebskonzept, serverseitige Schlüsselverwaltung und Kostenkontrolle. Die anleitende Person prüft die Eignung der Einheit. Der neue Stand wurde mit simulierten API-Antworten geprüft; ein Live-Test benötigt einen gültigen Key.
 
-## Übergabe an ALBA BERLIN
+### Rechte
 
-Der Prototyp ist bewusst so gebaut, dass der nächste Schritt kein Redesign, sondern eine gemeinsame Integration ist:
+Unabhängiger Challenge-Prototyp, kein offizielles Produkt von ALBA BERLIN. Marken, Bilder und redaktionelle Inhalte bleiben den jeweiligen Rechteinhabern zugeordnet. Die bereitgestellten Original-XLSX/PDF-Dateien werden nicht als vollständige Dateien veröffentlicht. Eine Open-Source-Lizenz für den Code ist noch abzustimmen; öffentliche Einsicht allein erteilt keine pauschalen Nutzungsrechte.
 
-- vollständigen Spielkatalog über API, Export oder CMS anbinden
-- vorhandene Taxonomie prüfen und fehlende Metadaten redaktionell ergänzen
-- Ranking-Gewichte mit Übungsleitenden, Erziehenden und Lehrkräften testen
-- Feedbacksignale und datensparsame Erfolgsmetriken definieren
-- Coach-Antworten evaluieren, Sicherheits- und Inklusionsleitlinien schärfen
-- Barrierefreiheit nach WCAG testen und mit realen Geräten validieren
-- Rollen, Betrieb, Hosting, Kostenkontrolle und redaktionelle Verantwortung klären
+## Screenshots des ersten Prototyps · Juli 2026
 
-Erfolg lässt sich beispielsweise über „Zeit bis zur passenden Spielidee“, Öffnungsrate der Originalanleitungen, Merkquote, Abbruchquote und qualitatives Feedback messen — ohne Profile von Kindern anzulegen.
+Diese Ansichten dokumentieren den vorherigen Stand. Der September-Ausbau ersetzt die damalige grobe Filterung und den Demo-Katalog durch die oben beschriebene ALBA-Regellogik.
 
-## Grenzen des Prototyps
+![Startseite, Juli 2026](docs/screenshots/01-startseite.png)
+![Empfehlungen, Juli 2026](docs/screenshots/02-personalisierte-empfehlungen.png)
+![Coach AI, Juli 2026](docs/screenshots/03-coach-ai-match-lab.png)
+![Spielplan, Juli 2026](docs/screenshots/04-coach-ai-spielplan.png)
 
-- Die sichtbare Zahl der gesamten Spielideen stammt aus der bestehenden Plattform; lokal sind aktuell acht Spiele als repräsentative Stichprobe integriert.
-- Metadaten und Ranking-Gewichte sind Hypothesen und noch nicht gemeinsam mit ALBA validiert.
-- KI-Ausgaben können fehlerhaft sein. Die anleitende Person prüft Eignung, Raum, Material und Sicherheit.
-- Es gibt noch keine Nutzerkonten, organisationsweite Favoriten, Analytics oder CMS-Synchronisation.
-- Die Live-Demo kann zugriffsbeschränkt sein; der Quellcode und die Screenshots dokumentieren den vollständigen Stand.
-
-## Open Source und Rechte
-
-Der Quellcode wird zur Prüfung und gemeinsamen Weiterentwicklung öffentlich bereitgestellt. Vor Vergabe einer konkreten Open-Source-Lizenz müssen Marken-, Bild- und Inhaltsrechte mit ALBA BERLIN geklärt werden. **ALBA**, **ALBAthek**, die Spieltexte, Links und Bildmotive bleiben Eigentum beziehungsweise Inhalte der jeweiligen Rechteinhaber und sind nicht automatisch von einer späteren Code-Lizenz umfasst.
-
-Dieses Repository ist ein unabhängiger Challenge-Prototyp und derzeit kein offizielles Produkt von ALBA BERLIN.
-
-## Bewerbung
-
-Die vollständig ausformulierten Antworten für den Civic Coding-Accelerator stehen in [docs/BEWERBUNG.md](docs/BEWERBUNG.md). Persönliche Kontaktfelder, Rechtsform, Standort und Einwilligungen bleiben bis zur Bestätigung durch das einreichende Team offen.
+Der [Bewerbungsentwurf](docs/BEWERBUNG.md) bleibt als historischer Einreichungsstand vom 28.07.2026 erhalten.
