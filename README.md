@@ -33,6 +33,31 @@ Die tatsächliche KI-Antwortzeit hängt vom gewählten Modell, benötigten Katal
 
 React 19 / TypeScript, Next.js auf vinext/Vite und Cloudflare Workers/Sites. Keine Datenbank: Merkliste gerätelokal, OpenAI-Einstellungen sitzungsbezogen.
 
+### Netlify
+
+Geschützter Prototyp: **https://albathek-match.netlify.app** (Benutzername `alba`,
+Passwort wird separat geteilt). Der bisherige private Sites-Prototyp bleibt bestehen.
+
+Zusätzlich steht ein nativer Next.js-Build für Netlify bereit: `npm run build:netlify`.
+`netlify.toml` aktiviert den Next.js-Adapter; `tsconfig.next.json` prüft nur die dort
+benötigten App-Dateien. Der bisherige Sites-/Cloudflare-Build bleibt unverändert.
+
+Der Netlify-Zugang wird serverseitig über `netlify/edge-functions/password-gate.ts`
+geschützt. Benutzername: `alba`. Das Passwort wird ausschließlich als geheime
+Netlify-Variable `COACH_SITE_PASSWORD` gesetzt (Produktion sowie Deploy-Previews
+und Branch-Deploys; der Scope muss Functions enthalten). Ohne Variable bleibt die Website gesperrt.
+Das Passwort gehört weder ins Repository noch in `NEXT_PUBLIC_*` oder `netlify.toml`.
+Nach Passwortänderungen ist ein neuer Deploy erforderlich; ältere Deploys behalten
+ihre zur Deployment-Zeit gesetzten Variablen und sollten bei einer Rotation entfernt
+oder anderweitig gesperrt werden. HTTP-Basic-Zugangsdaten werden vom Browser
+verwaltet; zum Beenden der Sitzung das private Browserfenster schließen.
+
+Deployment: `npx netlify deploy --context production` für den geschützten Entwurf,
+nach Prüfung `npx netlify deploy --prod`. Die KI-API bleibt `/api/coach` und wird
+ebenfalls geschützt. Es wird kein OpenAI-Key auf Netlify hinterlegt.
+
+Screenshots und Frontend-Abnahme: [Coach-UI-Prüfbericht](docs/coach-ui-review.md).
+
 ### Datenfluss
 
 ```text

@@ -5,7 +5,7 @@ const allowedModels=new Set(['gpt-5.6-luna','gpt-5.6-terra','gpt-5.6','gpt-5-min
 const object=(properties:Record<string,unknown>)=>({type:'object',properties,required:Object.keys(properties),additionalProperties:false});
 const nullableNumber={type:['number','null']};
 const tool=(name:string,description:string,properties:Record<string,unknown>)=>({type:'function',name,description,strict:true,parameters:object(properties)});
-export const coachTools=[
+const coachTools=[
   tool('search_games','Verstehe zuerst Alltagssprache. Suche den vollständigen Katalog. Neue ausdrückliche Angaben als Patch, sonst null. Interessen als Suchwörter, keine erfundenen Bedingungen.',{
     query:{type:'string'},children:nullableNumber,age:nullableNumber,duration:nullableNumber,
     room:{type:['string','null'],enum:['Sporthalle','Bewegungsraum','Outdoor',null]},
