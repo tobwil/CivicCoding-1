@@ -37,6 +37,19 @@ test("Coach AI supports demo and session-only live settings", async () => {
   assert.match(coach, /ANKOMMEN/);
   assert.match(coach, /ACTION/);
   assert.match(coach, /LANDEN/);
+  assert.match(coach, /STATIC_HOST_NOTE/);
+  assert.match(coach, /isStaticDemoHost/);
+});
+
+test("static here.now host falls back to demo without a live coach API", async () => {
+  const helper = await source("app/static-demo.ts");
+  const config = await source("vite.static.config.ts");
+  const spa = await source("spa/index.html");
+
+  assert.match(helper, /auf here\.now nur Demo-Modus/);
+  assert.match(config, /base:\s*"\/"/);
+  assert.match(config, /dist-static/);
+  assert.match(spa, /<div id="root">/);
 });
 
 test("the live endpoint constrains models, catalog and output shape", async () => {

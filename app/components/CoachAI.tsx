@@ -1,6 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  STATIC_HOST_NOTE,
+  isMissingCoachApi,
+  isStaticDemoHost,
+} from "../static-demo";
 
 type SuggestedGame = {
   id: string;
@@ -112,7 +117,7 @@ export function CoachAI({ context, recommendations }: Props) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setApiKey(savedKey);
     setModel(savedModel);
-    setIsLive(Boolean(savedKey));
+    setIsLive(isStaticDemoHost() ? false : Boolean(savedKey));
   }, []);
 
   useEffect(() => {
@@ -135,6 +140,12 @@ export function CoachAI({ context, recommendations }: Props) {
   );
 
   function saveSettings() {
+    if (isStaticDemoHost()) {
+      setIsLive(false);
+      setSettingsOpen(false);
+      setError(STATIC_HOST_NOTE);
+      return;
+    }
     if (apiKey.trim()) {
       window.sessionStorage.setItem("albathek-openai-key", apiKey.trim());
       setIsLive(true);
@@ -162,9 +173,16 @@ export function CoachAI({ context, recommendations }: Props) {
     setError("");
 
     try {
-      if (!apiKey.trim()) {
+      const useDemo =
+        !apiKey.trim() || isStaticDemoHost();
+
+      if (useDemo) {
+        if (isStaticDemoHost() && apiKey.trim()) {
+          setError(STATIC_HOST_NOTE);
+        }
         await new Promise((resolve) => window.setTimeout(resolve, 850));
         setPlan(buildDemoPlan(cleanPrompt, context, recommendations));
+        setIsLive(false);
         return;
       }
 
@@ -178,13 +196,22 @@ export function CoachAI({ context, recommendations }: Props) {
           model,
         }),
       });
-      const payload = await response.json();
+      const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
+        if (isMissingCoachApi(undefined, response.status)) {
+          throw Object.assign(new Error(STATIC_HOST_NOTE), { status: response.status });
+        }
         throw new Error(payload.error ?? "Coach AI ist gerade nicht erreichbar.");
       }
       setPlan(payload.plan);
       setIsLive(true);
     } catch (requestError) {
+      if (isMissingCoachApi(requestError, (requestError as { status?: number }).status)) {
+        setError(STATIC_HOST_NOTE);
+        setIsLive(false);
+        setPlan(buildDemoPlan(cleanPrompt, context, recommendations));
+        return;
+      }
       setError(
         requestError instanceof Error
           ? requestError.message
@@ -323,9 +350,9 @@ export function CoachAI({ context, recommendations }: Props) {
                 <div className="key-note">
                   <span>⌁</span>
                   <p>
-                    Der Key bleibt nur in diesem Tab. Bei einer Anfrage wird er
-                    serverseitig direkt an OpenAI weitergereicht und nicht
-                    gespeichert. Live-Anfragen können Kosten verursachen.
+                    {isStaticDemoHost()
+                      ? "auf here.now nur Demo-Modus. Der Live-Pfad POST /api/coach ist auf diesem Host nicht verfügbar."
+                      : "Der Key bleibt nur in diesem Tab. Bei einer Anfrage wird er serverseitig direkt an OpenAI weitergereicht und nicht gespeichert. Live-Anfragen können Kosten verursachen."}
                   </p>
                 </div>
 
@@ -418,7 +445,7 @@ export function CoachAI({ context, recommendations }: Props) {
                   </div>
                 )}
 
-                {error && !loading && (
+                {error && !loading && !plan && (
                   <div className="coach-error">
                     <span>!</span>
                     <h3>Kurzer Timeout.</h3>
@@ -431,6 +458,7 @@ export function CoachAI({ context, recommendations }: Props) {
 
                 {plan && !loading && (
                   <div className="generated-plan">
+                    {error && <p className="plan-host-note">{error}</p>}
                     <div className="plan-topline">
                       <span>DEIN SPIELPLAN</span>
                       <small>{isLive ? model.toUpperCase() : "DEMO INTELLIGENCE"}</small>
