@@ -16,18 +16,18 @@ Die zehn zusätzlich von ALBA gelieferten **Testprofile** sind separat im „ALB
 2. **Für deine Gruppe:** Kita, Grundschule oder Verein wählen; Alter und Kinderzahl direkt ändern, Zeit und Ort antippen. Ziel, Material und Anleitung liegen unter „Weitere Einstellungen“ beziehungsweise „Ziel, Material & Anleitung einstellen“.
 3. **Merken:** Das Herz speichert Spiele lokal auf diesem Gerät. „Gemerkt“ öffnet die Merkliste. Unter Material & Details lassen sich Spiele für heute ausblenden.
 4. **Original öffnen:** Bild oder Titel führt zu Video und vollständiger Anleitung bei ALBA. Bilder werden von ALBA geladen; Videos werden nicht kopiert.
-5. **Coach AI:** Situation beschreiben und eine Einheit mit drei unterschiedlichen Spielfamilien erstellen. Der regelbasierte Sofortplan braucht keinen API-Key. Pläne lassen sich drucken.
+5. **ALBA-Coach:** Eine Situation beschreiben, sechs echte Katalogtreffer erhalten, nachfragen und erst auf Wunsch eine Einheit erstellen. Einzelne Abschnitte lassen sich ersetzen und Änderungen zurücknehmen. Ohne API-Key bleiben Basissuche und regelbasierte Planung verfügbar.
 6. **ALBA-Labor:** Testprofile lesen und optional zusätzliche Detailregeln ausprobieren. Sie ersetzen weder die öffentliche Sammlung noch eine fachliche Freigabe.
 
 Die öffentliche Sammlung enthält keine vollständigen Angaben zu exakten Altersgrenzen, Gruppenkapazität und Räumen. Treffer sind deshalb **eine Vorauswahl, keine bestätigte Eignungsprüfung**. Prüfe Originalanleitung, Materialmengen, Platz und Gruppe selbst. Für längere Angebote werden ALBAs Jahreskalender bzw. Mini-Reihen verlinkt.
 
 ### OpenAI einrichten
 
-Coach AI → OpenAI → eigenen API-Key eintragen → für diese Sitzung verwenden. Der Key liegt ausschließlich im Tab-`sessionStorage`, geht bei einer Anfrage an den eigenen Server und von dort an OpenAI. Er wird nicht in einer Datenbank gespeichert. Entfernen ist jederzeit möglich.
+Coach AI → OpenAI → eigenen API-Key eintragen → Speichern. Der Key liegt ausschließlich im `sessionStorage` der Browsersitzung, geht bei einer Anfrage an den eigenen Server und von dort an OpenAI. Er wird nicht in einer Datenbank oder in Anwendungslogs gespeichert. Entfernen ist jederzeit möglich. Bitte keine personenbezogenen Daten von Kindern eingeben.
 
-Pro Live-Plan erfolgt **ein** kostenpflichtiger Aufruf der Responses API statt zuvor zwei aufeinanderfolgender Aufrufe. Währenddessen erscheint, soweit die Angaben lokal verarbeitbar sind, schon ein eindeutig markierter Sofortvorschlag. Die KI lässt sich abbrechen. Spezielle Materialmengen oder unklare Anforderungen können eine Rückfrage auslösen.
+Der Coach behält Gespräch, Gruppendaten, Treffer und Planstände innerhalb derselben Sitzung. Schließen und Neuladen erhalten diesen Zustand; „Neues Gespräch“ löscht ihn nach Bestätigung. „Neue Einheit“ leert nur den Plan. Der Chat lässt sich abbrechen und wiederholen. Bei Fehlern bleiben Treffer und der letzte gültige Plan erhalten.
 
-Die tatsächliche KI-Antwortzeit hängt weiterhin vom gewählten Modell und OpenAI ab; es gibt keine garantierte Sekundenangabe. Ohne gültigen Key ist der Sofortplan vollständig nutzbar.
+Die tatsächliche KI-Antwortzeit hängt vom gewählten Modell, benötigten Katalogfunktionen und OpenAI ab. Ohne gültigen Key wird kein KI-Dialog vorgetäuscht: Die Oberfläche kennzeichnet die regelbasierte Hilfe ausdrücklich.
 
 ## Technische Perspektive
 
@@ -36,17 +36,17 @@ React 19 / TypeScript, Next.js auf vinext/Vite und Cloudflare Workers/Sites. Kei
 ### Datenfluss
 
 ```text
-Öffentliche ALBAthek → versionierter Katalog mit 657 Einträgen
-                                     ↓
-Suche + vorhandene Metadaten → Vorauswahl → bis zu 18 unterschiedliche Spielfamilien
-                                     ↓
-                             Sofortplan (lokal)
-                                     ↓
-                          ein optionaler KI-Aufruf
-                                     ↓
-                   Bedingungen, IDs, Familien & Phasen prüfen
-                                     ↓
-                     drei Spiele, kanonische Titel, exakte Minuten
+Nachricht + verbindliche Gruppendaten + aktueller Plan
+                         ↓
+ Responses API (`store: false`, vollständige letzte 12 Runden)
+                         ↓
+          search_games · read_game · propose_plan
+                         ↓
+ Anwendung durchsucht 657 Einträge / liest nur geprüfte ALBA-Links
+                         ↓
+ Validierung von IDs, Materialwidersprüchen, Familien, Dauer und Änderungstiefe
+                         ↓
+ Textantwort + sechs Treffer oder atomar übernommene Planversion
 
 ALBA-Testprofile → optionales Labor → zusätzliche Detailprüfung für 9 zugeordnete Spiele
 SPORT VERNETZT → pädagogische Hinweise für Sofortplan und KI
@@ -55,10 +55,11 @@ SPORT VERNETZT → pädagogische Hinweise für Sofortplan und KI
 - Suche über Titel, Kurzbeschreibung und Material; Titelübereinstimmungen werden bevorzugt.
 - Grundspiele und schnell vorbereitete Angebote erhalten einen Ranking-Vorteil; Zielbezug priorisiert. Keine erfundenen Match-Prozentwerte.
 - Spiel-Familien werden über den Original-URL-Pfad erkannt. Weder dieselbe ID noch eine weitere Variante derselben Familie darf zweimal im Plan stehen.
-- Die KI erhält nur eine begrenzte Auswahl, keine 657 vollständigen Datensätze.
-- Structured Outputs, `store: false`, maximal 2.200 Ausgabetokens, serverseitiges Zeitlimit und Abbruchsignal.
-- Die KI interpretiert Bedingungen und plant in einem Aufruf; erkannte Änderungen werden danach erneut geprüft.
-- Kanonische Titel und Zeitanteile werden im Server gesetzt. Nicht passende oder doppelte Antworten werden mit einer Meldung abgewiesen, nicht still repariert.
+- Die KI erhält Funktionen statt eines unkontrollierten Katalog-Dumps. Funktionsargumente sind strikt typisiert; Ergebnisse werden lokal ausgeführt und validiert.
+- Gesprächskontext wird mit der Responses API manuell weitergegeben; `store: false` bleibt aktiv. Vollständige Antwort- und Werkzeugschritte werden paarweise erhalten, auf zwölf Runden begrenzt und durch strukturierte Gruppendaten ergänzt.
+- Pro Nachricht sind höchstens zwei Werkzeugrunden zulässig. Eine einfache Rückfrage nutzt bestehende Referenzen; eine Aufbaufrage darf ausschließlich einen bereits angezeigten, geprüften ALBAthek-Link lesen.
+- Planänderungen werden erst nach vollständiger Validierung atomar übernommen. Erklärungsfragen dürfen den Plan nicht verändern. Gezielter Ersatz erhält andere Abschnitte und Zeiten; Wiederholungen sind nur auf ausdrücklichen Wunsch erlaubt.
+- Antworttext wird gestreamt. Abbruch, Zeitüberschreitung und OpenAI-Fehler verwerfen keinen gültigen Zustand. Nur Authentifizierungsfehler verweisen auf die Einstellungen.
 - Zeitaufteilung Ankommen/Action/Landen ist ein Vorschlag des Prototyps, keine offizielle ALBA-Systematik.
 - Fehlende Quelldaten werden nicht als bestätigte Eignung ausgegeben.
 
@@ -68,14 +69,16 @@ SPORT VERNETZT → pädagogische Hinweise für Sofortplan und KI
 app/data/public-games.json    657 öffentliche Spiele, Metadaten und Quellen
 app/data/alba-games.json      10 separat angelieferte ALBA-Testprofile
 app/data/legacy-games.json    Historischer Acht-Spiele-Stand (nicht doppelt angezeigt)
-app/lib/catalog.ts           Öffentliche Suche, Profilzuordnung, Planer und Validierung
+app/lib/catalog.ts           Öffentliche Suche und Profilzuordnung
 app/lib/alba.ts               Experimentelle Detailregeln und Rahmenwerk-Leitlinien
+app/lib/coach.ts              Gesprächszustand, lokale Suche, Planversionen und Validierung
+app/lib/coach-source.ts       Begrenzter Abruf geprüfter ALBAthek-Originalanleitungen
 app/page.tsx                  Katalog, kompakte Filter, Merkliste und ALBA-Labor
-app/components/CoachAI.tsx    Coach, Einstellungen, Sofortvorschlag und Druckansicht
-app/api/coach/route.ts        Ein KI-Aufruf mit anschließender Validierung
+app/components/CoachAI.tsx    Dialog, Arbeitsbereich, Einstellungen und Druckansicht
+app/api/coach/route.ts        Streaming-Dialog und OpenAI Function Calling
 scripts/scrape-albathek.mjs   Import der öffentlichen Übersicht und Spielmetadaten
 scripts/import-alba.py        Lesender XLSX-Import
-tests/product.test.mjs        Regel-, Katalog- und API-Tests
+tests/*.test.mjs              26 Regel-, Katalog-, Dialog-, Quellen- und API-Tests
 ```
 
 ### Lokal starten
@@ -89,7 +92,7 @@ npm test
 npm run lint
 ```
 
-Die Oberfläche läuft unter http://localhost:3000. Tests verwenden kontrollierte Modellantworten, keine API-Credits. Der Produktionsbuild und 19 Verhaltenstests sind erfolgreich. Im Browser wurden Navigation, Originalbilder, Gagaball-Suche, Merkliste und ein Sofortplan geprüft. Ein echter OpenAI-Latenztest ist nicht Bestandteil dieses Prüfstands.
+Die Oberfläche läuft unter http://localhost:3000. Automatisierte API-Tests verwenden kontrollierte Modellantworten, keine API-Credits. Der Produktionsbuild, Lint und 26 Verhaltenstests sind erfolgreich. Zusätzlich wurde ein echter OpenAI-Mehrschritt-Dialog von der Fußballsuche bis zu Plan, Erklärung, gezieltem Ersatz und Rückgängig geprüft; gemessene Antwortzeiten lagen in diesem Lauf bei rund 16–28 Sekunden. Das ist eine Momentaufnahme, keine Leistungszusage.
 
 Ein eigenständiges `tsc --noEmit` meldet weiterhin fehlende Cloudflare-Umgebungstypen in den unveränderten Starterdateien `db/index.ts` und `worker/index.ts`; der vinext-Produktionsbuild funktioniert.
 
@@ -109,9 +112,10 @@ Die XLSX-Verarbeitung benötigt Python mit `openpyxl`; die Originaldateien bleib
 
 ![Katalog mit echten ALBA-Bildern](docs/screenshots/07-spiele-katalog.png)
 ![Kompakte Navigation und Gruppenauswahl](docs/screenshots/06-katalog-start.png)
-![Coach mit drei unterschiedlichen Spielen](docs/screenshots/08-coach-sofortplan.png)
+![Dialog mit echten Katalogtreffern](docs/screenshots/09-coach-dialog.png)
+![Gemeinsam bearbeitete Einheit](docs/screenshots/10-coach-einheit.png)
 
-[Mobile Navigation](docs/screenshots/05-mobile-navigation.png). Die Aufnahmen 01–04 im selben Ordner dokumentieren den historischen Juli-Prototyp.
+[Mobiler Coach](docs/screenshots/11-coach-mobile.png). Die Aufnahmen 01–08 im selben Ordner dokumentieren frühere Entwicklungsstände.
 
 ## Übergabe, Betrieb und Rechte
 

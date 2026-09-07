@@ -98,6 +98,26 @@ Der Nutzer beanstandete sechs Punkte: fehlende Breite des ALBAthek-Katalogs; zu 
 
 **Prüfung und Dokumentation:** 19 automatisierte Verhaltenstests, Produktionsbuild, Lint sowie Browserprüfung von Navigation, Suche, Merkliste, Bildern und Sofortplan. Vier neue Screenshots dokumentieren den korrigierten Stand. Die echte Modelllatenz wurde nicht gemessen. README und technische Quellenbeschreibung aktualisiert.
 
+## Ausbau zum dialogfähigen ALBA-Coach · 07.09.2026
+
+**Nutzer:**
+
+> wie die ki suche sinnvoll und vorallem funktionierend gestalten?
+>
+> und mit einem coach sollte man interagieren können. nicht nur ein vorschlag. der erzieher, oder trainer o.ä. sollte die möglichkeit haben mit dem coach zu chatten um mehr infos oder einen besseren trainingsplan zu bekommen.
+
+Danach wurde ein detaillierter Umsetzungsplan beauftragt: eigenständiger Chat mit Arbeitsbereich, sitzungsbezogener Kontext, nachvollziehbare Suche über 657 öffentliche Spiele, Originalquellen, gezielte Planänderungen, Rückgängig, Streaming, robuste Fehlerbehandlung und echte Mehrschritt-Abnahme.
+
+**Umsetzung:** Der Coach ist jetzt ein fortlaufender Dialog. Alltagssprache aktualisiert verbindliche Gruppendaten; neue Angaben überschreiben alte. Sechs Treffer bleiben sichtbar, bis eine neue Suche sie ersetzt. Erklärungsfragen ändern keinen Plan. Planstände sind versioniert, gezielte Änderungen erhalten nicht betroffene Abschnitte und Zeitanteile. Gespräch und Plan liegen nur im `sessionStorage`; ohne Speicher gibt es einen gekennzeichneten Arbeitsspeicher-Fallback.
+
+Die KI arbeitet über drei validierte Katalogfunktionen: Suchen, eine bereits referenzierte ALBA-Originalanleitung lesen und einen Plan bzw. eine gezielte Änderung vorschlagen. Originalinformationen und eigene Coaching-Vorschläge werden unterschieden. Die Anwendung akzeptiert ausschließlich Katalog-IDs und geprüfte `albathek.de/spiele/`-Links, prüft Materialwidersprüche, Spielfamilien und Dauer und übernimmt Änderungen erst nach erfolgreicher Gesamtprüfung. Ohne Key stehen ehrlich gekennzeichnete Basissuche und regelbasierte Planung bereit.
+
+**Abnahme:** 26 automatisierte Tests plus reale Mehrschritt-Dialoge. Geprüft wurden Fußballbezug, unbekannte und konkrete Ballanzahl, sechs synchrone Treffer, 30-Minuten-Plan, gezielter Einstiegstausch, unveränderte Erklärung, Rückgängig, Kinderzahlwechsel, Sitzungszustand, fehlende Quelldaten, Abbruch/Fehlererhalt, mobile Tabs und Tastaturbedienung. Der reale OpenAI-Lauf benötigte in dieser Umgebung etwa 16–28 Sekunden je geprüfter Antwort.
+
+**Nutzer:** „bitte nochmal checken und dann push nach github“
+
+Daraufhin wurden der komplette Live-Dialog erneut durchgespielt, Sitzungserhalt nach Schließen und Neuladen geprüft, Desktop- und Mobile-Aufnahmen aktualisiert sowie Produktionsbuild, Lint und alle 26 Tests wiederholt, bevor der Stand veröffentlicht wurde.
+
 ### Verweise
 
 - [Projektübersicht](../README.md)

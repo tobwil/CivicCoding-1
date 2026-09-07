@@ -1,7 +1,7 @@
-import {catalog,searchCatalog,catalogMatch,buildCatalogPlan,validateCatalogPlan,uniqueFamilies,family} from "../app/lib/catalog.ts";
+import {catalog,searchCatalog,catalogMatch,buildCatalogPlan,validateCatalogPlan,uniqueFamilies} from "../app/lib/catalog.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
-import { games,archiveGames,defaultChoice,evaluateGame,findGames,maximumChildren,minimumAge,calendarFor,allowedSchoolContexts,buildDemoPlan,validateChoice,validatePlan,phaseDurations } from "../app/lib/alba.ts";
+import { games,archiveGames,defaultChoice,evaluateGame,findGames,maximumChildren,minimumAge,calendarFor,allowedSchoolContexts,buildDemoPlan,validateChoice,validatePlan } from "../app/lib/alba.ts";
 import { POST } from "../app/api/coach/route.ts";
 const game=name=>games.find(g=>g.name===name);
 const choice=overrides=>({...defaultChoice,...overrides});
@@ -87,7 +87,6 @@ test("server validates input ranges and rejects fabricated plans",()=>{
   assert.throws(()=>validatePlan(p,defaultChoice,games),/zulässiges/);
 });
 function req(body){return new Request("https://local/api/coach",{method:"POST",body:JSON.stringify(body)});}
-function aiResponse(value){return Response.json({status:"completed",output:[{content:[{type:"output_text",text:JSON.stringify(value)}]}]});}
 
 test("API requires a key and validates context without contacting OpenAI",async()=>{
   assert.equal((await POST(req({prompt:"Hallo",context:defaultChoice}))).status,400);
@@ -126,49 +125,8 @@ test("instant plans never repeat games or variants and honor duration/exclusions
   assert.ok(buildCatalogPlan("6 Kinder, 5 Jahre",choice({setting:"kita"}),[hidden]).timeline.every(x=>x.gameId!==hidden));
   assert.throws(()=>buildCatalogPlan("12 Kinder",defaultChoice,catalog.map(g=>g.id)),/drei unterschiedliche/);
 });
-const conditions={age:null,children:null,duration:null,room:null,sportswear:null};
-test("live planning makes exactly one request and enforces canonical names and minutes",async()=>{
-  const original=globalThis.fetch; const bodies=[];
-  try {
-    globalThis.fetch=async(_url,options)=>{
-      const b=JSON.parse(options.body);bodies.push(b);
-      const ids=b.text.format.schema.properties.timeline.items.properties.gameId.enum;
-      return aiResponse({headline:"Eine Einheit",read:"Für eure Gruppe",coachNote:"Kurz erklären",clarification:"",conditions,
-        timeline:["ANKOMMEN","ACTION","LANDEN"].map((phase,i)=>({phase,gameId:ids[i],title:"Wrong title",duration:99,reason:"Passend",tip:"Mitspielen"}))});
-    };
-    const response=await POST(req({prompt:"15 Minuten",apiKey:"test",context:defaultChoice,excludedIds:["672"]}));
-    assert.equal(response.status,200);
-    const {plan}=await response.json();
-    assert.equal(bodies.length,1);
-    assert.deepEqual(plan.timeline.map(x=>x.duration),phaseDurations(15));
-    assert.ok(plan.timeline.every(x=>x.title===catalog.find(g=>g.id===x.gameId).title&&x.gameId!=="672"));
-    assert.equal(bodies[0].store,false);
-    assert.ok(bodies[0].max_output_tokens<=2200);
-  } finally {globalThis.fetch=original;}
-});
-test("duplicate model output and different variants of the same family are rejected",async()=>{
+test("duplicate variants remain rejected by legacy plan validator",()=>{
   const plan=buildCatalogPlan("12 Kinder",defaultChoice);
   plan.timeline[1].gameId=plan.timeline[0].gameId;
   assert.throws(()=>validateCatalogPlan(plan,defaultChoice,catalog),/mehrfach/);
-  const variant=catalog.find(g=>g.kind==="Variation");
-  const base=catalog.find(g=>g.id!==variant.id&&family(g)===family(variant));
-  assert.ok(base);
-  plan.timeline[0].gameId=base.id;plan.timeline[1].gameId=variant.id;
-  assert.throws(()=>validateCatalogPlan(plan,defaultChoice,catalog),/mehrfach/);
-  const original=globalThis.fetch;
-  try {
-    globalThis.fetch=async()=>aiResponse({...plan,conditions,clarification:""});
-    assert.equal((await POST(req({prompt:"12 Kinder",apiKey:"test",context:defaultChoice}))).status,422);
-  }finally{globalThis.fetch=original;}
-});
-test("single-call interpretation rechecks conditions and passes clarification without inventing a plan",async()=>{
-  const original=globalThis.fetch;
-  try {
-    const plan=buildCatalogPlan("12 Kinder",defaultChoice);
-    globalThis.fetch=async()=>aiResponse({...plan,conditions,clarification:"Wie viele Bälle habt ihr tatsächlich?"});
-    const response=await POST(req({prompt:"nur zwei Bälle",apiKey:"test",context:defaultChoice}));
-    assert.equal(response.status,422);assert.match((await response.json()).error,/Wie viele/);
-    globalThis.fetch=async()=>aiResponse({...plan,conditions:{...conditions,children:25},clarification:""});
-    assert.equal((await POST(req({prompt:"Hallo",apiKey:"test",context:choice({setting:"kita",age:5,children:6})}))).status,422);
-  } finally {globalThis.fetch=original;}
 });

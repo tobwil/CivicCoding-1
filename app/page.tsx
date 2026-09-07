@@ -126,7 +126,7 @@ export default function Home() {
       {calendar&&personalized&&<aside className="calendar-card"><div><h3>Ein roter Faden für eure Einheit.</h3><p>Für längere Angebote empfiehlt ALBA aufeinander aufbauende Einheiten.</p></div><a href={calendar.href} target="_blank" rel="noreferrer">{calendar.title} öffnen ↗</a></aside>}
     </section>
 
-    <CoachAI context={choice} recommendations={catalog} excludedIds={dismissed}/>
+    <CoachAI context={choice} recommendations={catalog} excludedIds={dismissed} favorites={favorites} toggleFavorite={toggleFavorite}/>
 
     <section className="alba-lab" id="alba-labor"><details><summary><span className="trial-tag">IN ERPROBUNG</span><span><strong>ALBA-Labor</strong><small>10 angelieferte Testprofile & neue Empfehlungsregeln</small></span><span>+</span></summary><div className="lab-body">
       <p>ALBA hat zehn Spielprofile, eine Regelübersicht und das SPORT-Vernetzt-Rahmenwerk zum Testen bereitgestellt. Neun Profile ergänzen bereits öffentlich gelistete Spiele; Gespensterparty liegt nur als Testdatensatz vor. Diese Daten sind kein Ersatz für die ALBAthek.</p>

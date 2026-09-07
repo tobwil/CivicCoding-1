@@ -1,442 +1,106 @@
 "use client";
-
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-
-import { settings, type Choice, type Plan } from "../lib/alba";
-import { buildCatalogPlan, type CatalogGame } from "../lib/catalog";
-
-type Props = { context: Choice; recommendations: CatalogGame[]; excludedIds: string[] };
-const starterPrompts = [
-  "12 Kinder, Sporthalle, 20 Minuten – gemeinsam in Bewegung kommen",
-  "6 Kinder, 5 Jahre, Bewegungsraum, 15 Minuten",
-  "16 Kinder, Outdoor, 30 Minuten – alle sollen mitspielen",
-];
-
-export function CoachAI({ context, recommendations, excludedIds }: Props) {
-  const [open, setOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [prompt, setPrompt] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [showKey, setShowKey] = useState(false);
-  const [model, setModel] = useState("gpt-5.6-luna");
-  const [isLive, setIsLive] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [plan, setPlan] = useState<Plan | null>(null);
-  const [error, setError] = useState("");
-  const requestId = useRef(0);
-  const controller = useRef<AbortController | null>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    requestId.current += 1;
-    controller.current?.abort();
-    // A changed group or exclusion invalidates an earlier plan.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPlan(null);
-    setLoading(false);
-  }, [context, excludedIds]);
-
-  useEffect(() => {
-    const savedKey = window.sessionStorage.getItem("albathek-openai-key") ?? "";
-    const savedModel =
-      window.sessionStorage.getItem("albathek-openai-model") ??
-      "gpt-5.6-luna";
-    // Browser-only settings are intentionally restored after hydration.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setApiKey(savedKey);
-    setModel(savedModel);
-    setIsLive(Boolean(savedKey));
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.body.style.overflow;
-    const previousFocus = document.activeElement as HTMLElement | null;
-    document.body.style.overflow = "hidden";
-    const focusFrame = requestAnimationFrame(() => dialogRef.current?.querySelector<HTMLTextAreaElement>("textarea")?.focus());
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-      if (event.key === "Tab") {
-        const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea, a[href], summary') ?? []).filter(el => el.getClientRects().length);
-        const first = controls[0], last = controls[controls.length - 1];
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-      }
-    };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.body.style.overflow = previous;
-      cancelAnimationFrame(focusFrame);
-      previousFocus?.focus();
-      window.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [open]);
-
-  const gameMap = useMemo(
-    () => new Map(recommendations.map((game) => [game.id, game])),
-    [recommendations],
-  );
-
-  function saveSettings() {
-    controller.current?.abort();
-    requestId.current += 1;
-    setPlan(null);
-    setLoading(false);
-    if (apiKey.trim()) {
-      window.sessionStorage.setItem("albathek-openai-key", apiKey.trim());
-      setIsLive(true);
-    } else {
-      window.sessionStorage.removeItem("albathek-openai-key");
-      setIsLive(false);
-    }
-    window.sessionStorage.setItem("albathek-openai-model", model);
-    setSettingsOpen(false);
-    setError("");
-  }
-
-  function clearKey() {
-    controller.current?.abort();
-    requestId.current += 1;
-    setPlan(null);
-    setLoading(false);
-    setApiKey("");
-    setIsLive(false);
-    window.sessionStorage.removeItem("albathek-openai-key");
-  }
-
-  async function generatePlan(event: FormEvent) {
-    event.preventDefault();
-    const cleanPrompt = prompt.trim();
-    if (!cleanPrompt) return;
-    const currentRequest = ++requestId.current;
-    setLoading(true);
-    setPlan(null);
-    setError("");
-
+import { useEffect, useRef, useState } from 'react';
+import { professions, settings, type Choice } from '../lib/alba';
+import { type CatalogGame } from '../lib/catalog';
+import { byId, findGames, localTurn, newSession, planCheck, restoreSession, sessionKey, understand, type Session } from '../lib/coach';
+type Props = { context: Choice; recommendations: CatalogGame[]; excludedIds: string[]; favorites?:string[]; toggleFavorite?:(id:string)=>void };
+export function CoachAI({ context, excludedIds, favorites=[], toggleFavorite }: Props) {
+  const [open,setOpen]=useState(false), [settingsOpen,setSettingsOpen]=useState(false);
+  const [state,setState]=useState<Session>(()=>newSession(context));
+  const [ready,setReady]=useState(false), [storageNotice,setStorageNotice]=useState('');
+  const [apiKey,setApiKey]=useState(''), [model,setModel]=useState('gpt-5.6-luna');
+  const [prompt,setPrompt]=useState(''), [tab,setTab]=useState('Chat'), [workTab,setWorkTab]=useState('Spiele');
+  const [busy,setBusy]=useState(false), [status,setStatus]=useState(''), [partial,setPartial]=useState('');
+  const [error,setError]=useState(''), [authError,setAuthError]=useState(false), [retry,setRetry]=useState('');
+  const dialog=useRef<HTMLDivElement>(null), end=useRef<HTMLDivElement>(null);
+  const requestId=useRef(0), controller=useRef<AbortController|null>(null);
+  useEffect(()=>{
     try {
-      if (!apiKey.trim()) {
-        const demo = buildCatalogPlan(cleanPrompt, context, excludedIds);
-        if (currentRequest === requestId.current) setPlan(demo);
-        return;
-      }
-
-      controller.current?.abort();
-      controller.current = new AbortController();
-      try { setPlan(buildCatalogPlan(cleanPrompt, context, excludedIds)); } catch { /* Special constraints need the AI check first. */ }
-      const response = await fetch("/api/coach", {
-        method: "POST",
-        signal: AbortSignal.any([controller.current.signal, AbortSignal.timeout(40000)]),
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: cleanPrompt,
-          context,
-          apiKey: apiKey.trim(),
-          model,
-          excludedIds,
-        }),
-      });
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Coach AI ist gerade nicht erreichbar.");
-      }
-      if (currentRequest !== requestId.current) return;
-      setPlan(payload.plan);
-      setIsLive(true);
-    } catch (requestError) {
-      if (currentRequest !== requestId.current) return;
-      setPlan(null);
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Coach AI ist gerade nicht erreichbar.",
-      );
-    } finally {
-      if (currentRequest === requestId.current) setLoading(false);
+      const saved=sessionStorage.getItem(sessionKey);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if(saved)setState(restoreSession(saved));
+      setApiKey(sessionStorage.getItem('albathek-openai-key')??'');
+      setModel(sessionStorage.getItem('albathek-openai-model')??'gpt-5.6-luna');
+    }catch{setStorageNotice('Sitzungsspeicher nicht verfügbar oder ungültig. Dieses Gespräch bleibt nur im Arbeitsspeicher.');}
+    setReady(true);
+  },[]);
+  useEffect(()=>{
+    if(!ready)return;
+    try{sessionStorage.setItem(sessionKey,JSON.stringify(state));}
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    catch{setStorageNotice('Browserspeicher nicht verfügbar oder voll. Das Gespräch bleibt im Arbeitsspeicher.');}
+  },[state,ready]);
+  useEffect(()=>{end.current?.scrollIntoView({block:'nearest'});},[state.messages,partial,open]);
+  useEffect(()=>{
+    if(!open)return;
+    const before=document.activeElement as HTMLElement, overflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
+    const frame=requestAnimationFrame(()=>dialog.current?.querySelector('textarea')?.focus());
+    function keyboard(e:KeyboardEvent){
+      if(e.key==='Escape')setOpen(false);
+      if(e.key!=='Tab')return;
+      const els=Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled),textarea,input,select,a[href],summary')??[]).filter(el=>el.getClientRects().length);
+      if(e.shiftKey&&document.activeElement===els[0]){e.preventDefault();els.at(-1)?.focus();}
+      else if(!e.shiftKey&&document.activeElement===els.at(-1)){e.preventDefault();els[0]?.focus();}
     }
+    window.addEventListener('keydown',keyboard);
+    return()=>{cancelAnimationFrame(frame);document.body.style.overflow=overflow;window.removeEventListener('keydown',keyboard);before?.focus();};
+  },[open]);
+  function cancel(){requestId.current++;controller.current?.abort();setBusy(false);setPartial('');setStatus('');}
+  function saveSettings(){cancel();try{sessionStorage.setItem('albathek-openai-key',apiKey.trim());sessionStorage.setItem('albathek-openai-model',model);}catch{setStorageNotice('Einstellungen bleiben nur im Arbeitsspeicher.');}setSettingsOpen(false);}
+  async function send(text:string){
+    text=text.trim();if(!text||busy)return;
+    setPrompt('');setError('');setAuthError(false);setRetry(text);
+    if(!apiKey.trim()){setState(localTurn(state,text,excludedIds));return;}
+    const base=structuredClone(state), current=++requestId.current;
+    const visible=structuredClone(base);visible.group=understand(text,visible.group);
+    if(!/^(warum|wieso|erklär|wie|was)/i.test(text))visible.resultIds=findGames(visible.group,text,excludedIds).slice(0,6).map(g=>g.id);
+    visible.messages.push({role:'user',text});setState(visible);setBusy(true);setPartial('');setStatus('Coach liest deine Nachricht …');
+    const abort=new AbortController();controller.current=abort;
+    try{
+      const response=await fetch('/api/coach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:text,apiKey:apiKey.trim(),model,state:base,excludedIds}),signal:AbortSignal.any([abort.signal,AbortSignal.timeout(90000)])});
+      if(!response.ok){const data=await response.json();setAuthError(response.status===401||response.status===403);throw Error(data.error||'Anfrage fehlgeschlagen.');}
+      if(!response.body)throw Error('Die Antwort konnte nicht gelesen werden.');
+      const reader=response.body.getReader(), decoder=new TextDecoder();let buffer='',finished=false;
+      while(true){const chunk=await reader.read();if(chunk.done)break;buffer+=decoder.decode(chunk.value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()!;
+        for(const line of lines){if(!line.trim())continue;const event=JSON.parse(line);if(current!==requestId.current)return;
+          if(event.type==='status')setStatus(event.text);
+          if(event.type==='delta')setPartial(p=>p+event.text);
+          if(event.type==='error'){setAuthError(event.auth===true);throw Error(event.text);}
+          if(event.type==='done'){setState(event.state);if(event.state.plans.length>base.plans.length)setWorkTab('Einheit');setPartial('');finished=true;}
+        }
+      }
+      if(!finished)throw Error('Antwort unterbrochen. Dein bisheriger Plan bleibt erhalten.');
+    }catch(e){if(current===requestId.current){setError((e as Error).name==='TimeoutError'?'Zeitüberschreitung. Dein bisheriger Plan bleibt erhalten.':(e as Error).message);setPartial('');}}
+    finally{if(current===requestId.current){setBusy(false);setStatus('');}}
   }
-
-  return (
-    <>
-      <section className="coach-launch" id="coach-ai">
-        <div className="coach-launch-orbit" aria-hidden="true">
-          <span>✦</span>
-        </div>
-        <div className="coach-launch-copy">
-          <div className="ai-label">
-            <span>✦</span> COACH AI
-            <small>{isLive ? "OPENAI LIVE" : "OFFLINE BEREIT"}</small>
-          </div>
-          <h2>
-            Dein Moment.
-            <br />
-            <em>Eure Einheit.</em>
-          </h2>
-          <p>
-            „Die Halle ist klein, die Kinder sind laut und ich habe 20
-            Minuten.“ Coach AI hilft bei der Auswahl aus dem gesamten ALBAthek-Katalog.
-          </p>
-          <button type="button" onClick={() => setOpen(true)}>
-            Coach AI starten <span>→</span>
-          </button>
-        </div>
-        <div className="coach-launch-card" aria-hidden="true">
-          <div className="coach-card-top">
-            <span className="coach-pulse" />
-            MATCH-LAB / BEREIT
-          </div>
-          <p>„12 Kinder. Sporthalle. Viel Energie.“</p>
-          <div className="coach-mini-plan">
-            <span>04′</span>
-            <strong>Ankommen</strong>
-            <i />
-            <span>12′</span>
-            <strong>Action</strong>
-            <i />
-            <span>04′</span>
-            <strong>Landen</strong>
-          </div>
-          <small>ALBA-Spiele · geprüfte Auswahl · ein roter Faden</small>
-        </div>
-      </section>
-
-      <button
-        type="button"
-        className="coach-fab"
-        onClick={() => setOpen(true)}
-        aria-label="Coach AI öffnen"
-      >
-        <span>✦</span>
-        <strong>COACH AI</strong>
-      </button>
-
-      {open && (
-        <div ref={dialogRef} className="coach-overlay" role="dialog" aria-modal="true" aria-labelledby="coach-title">
-          <div className="coach-shell">
-            <header className="coach-header">
-              <div className="wordmark coach-wordmark">
-                <span>ALBA</span>thek
-                <small>SPORT DIGITAL</small>
-              </div>
-              <div className="coach-status">
-                <span className={isLive ? "live" : ""} />
-                {isLive ? "OPENAI LIVE" : "OHNE KI · REGELBASIERT"}
-              </div>
-              <div className="coach-header-actions">
-                <button
-                  type="button"
-                  onClick={() => setSettingsOpen((current) => !current)}
-                  aria-label="OpenAI-Einstellungen"
-                  aria-expanded={settingsOpen}
-                >
-                  ⚙ <span>OpenAI</span>
-                </button>
-                <button
-                  type="button"
-                  className="coach-close"
-                  onClick={() => setOpen(false)}
-                  aria-label="Coach AI schließen"
-                >
-                  ×
-                </button>
-              </div>
-            </header>
-
-            {settingsOpen && (
-              <aside className="ai-settings" aria-label="OpenAI-Einstellungen">
-                <div className="settings-heading">
-                  <div>
-                    <p>OPENAI SETTINGS</p>
-                    <h3>Mach den Coach live.</h3>
-                  </div>
-                  <button type="button" onClick={() => setSettingsOpen(false)}>
-                    ×
-                  </button>
-                </div>
-
-                <label>
-                  <span>OpenAI API-Key</span>
-                  <div className="key-field">
-                    <input
-                      type={showKey ? "text" : "password"}
-                      value={apiKey}
-                      onChange={(event) => setApiKey(event.target.value)}
-                      placeholder="sk-proj-…"
-                      autoComplete="off"
-                      spellCheck={false}
-                    />
-                    <button type="button" onClick={() => setShowKey((current) => !current)}>
-                      {showKey ? "Verbergen" : "Zeigen"}
-                    </button>
-                  </div>
-                </label>
-
-                <label>
-                  <span>Modell</span>
-                  <select value={model} onChange={(event) => setModel(event.target.value)}>
-                    <option value="gpt-5.6-luna">GPT-5.6 Luna · schnell</option>
-                    <option value="gpt-5.6-terra">GPT-5.6 Terra · ausgewogen</option>
-                    <option value="gpt-5.6">GPT-5.6 · höchste Qualität</option>
-                  </select>
-                </label>
-
-                <div className="key-note">
-                  <span>⌁</span>
-                  <p>
-                    Der Key bleibt nur in diesem Tab. Bei einer Anfrage wird er
-                    serverseitig direkt an OpenAI weitergereicht und nicht
-                    gespeichert. Live-Anfragen können Kosten verursachen.
-                  </p>
-                </div>
-
-                <div className="settings-actions">
-                  <button type="button" className="settings-save" onClick={saveSettings}>
-                    Für diese Sitzung verwenden
-                  </button>
-                  {apiKey && (
-                    <button type="button" className="settings-clear" onClick={clearKey}>
-                      Key entfernen
-                    </button>
-                  )}
-                </div>
-              </aside>
-            )}
-
-            <div className="coach-workspace">
-              <section className="coach-conversation">
-                <div className="coach-kicker">
-                  <span>02</span> MATCH-LAB
-                </div>
-                <h2 id="coach-title">
-                  Was ist heute
-                  <br />
-                  <em>wirklich los?</em>
-                </h2>
-                <p className="coach-subline">
-                  Drei verschiedene Spiele aus der ALBAthek. Der Sofortplan ist direkt da; mit API-Key ergänzt die KI eure Situation und Praxistipps.
-                </p>
-
-                <form onSubmit={generatePlan}>
-                  <label className="coach-prompt">
-                    <span className="sr-only">Situation beschreiben</span>
-                    <textarea
-                      value={prompt}
-                      onChange={(event) => { controller.current?.abort(); setPrompt(event.target.value); setPlan(null); requestId.current += 1; setLoading(false); }}
-                      placeholder="Zum Beispiel: 25 müde Kinder, kleine Halle und nur zwei Bälle …"
-                      rows={4}
-                      maxLength={800}
-                    />
-                    <div>
-                      <span>{prompt.length}/800</span>
-                      <button type="submit" disabled={loading || !prompt.trim()}>
-                        {loading ? "Coach denkt …" : "Einheit bauen"}{" "}
-                        <strong>{loading ? "✦" : "→"}</strong>
-                      </button>
-                    </div>
-                  </label>
-                </form>
-
-                <div className="starter-prompts">
-                  <p>ODER SCHNELL STARTEN MIT</p>
-                  {starterPrompts.map((starter) => (
-                    <button type="button" key={starter} onClick={() => { controller.current?.abort(); setPrompt(starter); setPlan(null); requestId.current += 1; setLoading(false); }}>
-                      {starter}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="context-ribbon">
-                  <span>{settings[context.setting]} · ab {context.age} Jahren</span>
-                  <span>{context.children} Kinder</span>
-                  <span>{context.duration} Min.</span>
-                  <span>{context.goal}</span>
-                  <span>{context.room}</span>
-                </div>
-              </section>
-
-              <section className={`coach-output ${plan ? "has-plan" : ""}`} aria-live="polite">
-                {loading && (
-                  <div className={plan ? "coach-progress" : "coach-thinking"}>
-                    <div>
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                    <p>Die KI prüft eure Situation und ergänzt Praxistipps …</p>
-                    <button className="text-button" type="button" onClick={()=>{controller.current?.abort();requestId.current+=1;setLoading(false);setIsLive(false);}}>{plan?"Sofortplan behalten":"Anfrage abbrechen"}</button>
-                  </div>
-                )}
-
-                {!loading && !plan && !error && (
-                  <div className="coach-empty">
-                    <span>✦</span>
-                    <p>Deine Einheit entsteht hier.</p>
-                    <small>
-                      Coach AI verbindet deine Situation mit passenden
-                      ALBAthek-Spielen.
-                    </small>
-                  </div>
-                )}
-
-                {error && !loading && (
-                  <div className="coach-error">
-                    <span>!</span>
-                    <h3>Diese Einheit braucht noch eine Anpassung.</h3>
-                    <p>{error}</p>
-                    <button type="button" onClick={() => setSettingsOpen(true)}>
-                      OpenAI-Einstellungen prüfen
-                    </button>
-                  </div>
-                )}
-
-                {plan && (
-                  <div className="generated-plan">
-                    <div className="plan-topline">
-                      <span>DEIN SPIELPLAN</span>
-                      <small>{loading ? "SOFORTVORSCHLAG · KI PRÜFT NOCH" : isLive ? model.toUpperCase() : "REGELBASIERTER PLAN"}</small>
-                    </div>
-                    <h3>{plan.headline}</h3>
-                    <p className="plan-read">{plan.read}</p>
-                    <div className="context-ribbon"><span>Für {plan.context.children} Kinder</span><span>ab {plan.context.age} Jahren</span><span>{plan.context.room}</span><span>{plan.context.duration} Minuten</span></div>
-                    {plan.warnings.map(note => <p className="plan-warning" key={note}>{note}</p>)}
-                    <div className="timeline">
-                      {plan.timeline.map((item, index) => {
-                        const game = gameMap.get(item.gameId);
-                        return (
-                          <article key={`${item.phase}-${index}`}>
-                            <div className="timeline-time">
-                              <strong>{String(item.duration).padStart(2, "0")}</strong>
-                              <span>MIN</span>
-                            </div>
-                            <div className="timeline-line">
-                              <i />
-                            </div>
-                            <div className="timeline-content">
-                              <p>{item.phase}</p>
-                              <h4>{item.title}</h4>
-                              <span>{item.reason}</span>
-                              <small>COACH-TIPP · {item.tip}</small>
-                              {game && (
-                                <details><summary>Material & Original öffnen</summary><p><strong>Material:</strong> {game.materials||"Im Original prüfen"}</p><a href={game.href} target="_blank" rel="noreferrer">Video & Anleitung bei ALBA ↗</a>{context.useTestProfiles&&game.profile&&<p>Ergänzendes Testprofil: {game.profile.tip}</p>}</details>
-                              )}
-                            </div>
-                          </article>
-                        );
-                      })}
-                    </div>
-                    <div className="coach-note">
-                      <span>ALBA COACH NOTE</span>
-                      <p>„{plan.coachNote}“</p>
-                    </div>
-                    <button type="button" className="print-plan" onClick={() => window.print()}>Spielplan drucken</button>
-                    <button type="button" className="plan-again" onClick={() => setPlan(null)}>
-                      Neue Situation <span>↻</span>
-                    </button>
-                  </div>
-                )}
-              </section>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
+  function reset(all:boolean){if(all&&!window.confirm('Das gesamte Coach-Gespräch und alle Planstände dieser Sitzung löschen?'))return;cancel();setError('');setRetry('');setWorkTab('Spiele');setState(all?newSession(context):{...state,plans:[],messages:[...state.messages,{role:'assistant',text:'Neue Einheit: Der Plan ist leer. Deine Gruppendaten bleiben erhalten.'}]});}
+  function openCoach(){if(!state.messages.length)setState(newSession(context));setOpen(true);}
+  const plan=state.plans.at(-1), group=state.group;
+  const suggestions=plan?['Warum passt Spiel 2?','Erklär mir den Aufbau von Spiel 2.','Ersetze den Einstieg durch etwas Ruhigeres.']:state.resultIds.length?['Wir haben nur einen Ball.','Mach daraus eine Einheit für 30 Minuten.','Erklär mir den Aufbau von Spiel 2.']:['11 Kinder, meist Fußballer, Ball.','6 Kinder, 5 Jahre, Bewegungsraum, 15 Minuten'];
+  // ALBA remote thumbnails retain their original source; no image proxy is used.
+  /* eslint-disable @next/next/no-img-element */
+  function card(id:string,index:number){const g=byId.get(id);return g&&<article className="dialog-game" key={id}><img src={g.image} alt="" loading="lazy"/><div><small>SPIEL {index+1} · {g.kind}</small><h3>{g.title}</h3><p>{g.description}</p><p className="dialog-muted">Material: {g.materials||'Nicht dokumentiert – bitte im Original prüfen.'}</p><a href={g.href} target="_blank" rel="noreferrer">ALBA-Original öffnen ↗</a>{toggleFavorite&&<button className="dialog-save" aria-pressed={favorites.includes(id)} onClick={()=>toggleFavorite(id)}>{favorites.includes(id)?'♥ Gemerkt':'♡ Merken'}</button>}</div></article>;}
+  return <>
+    <section className="coach-launch" id="coach-ai"><div><p className="eyebrow">DEIN ALBA-COACH</p><h2>Gemeinsam zur passenden Einheit.</h2><p>Spiele finden, nachfragen und deinen Plan Schritt für Schritt verbessern.</p><button className="primary" onClick={openCoach}>Mit dem Coach sprechen ↗</button></div></section>
+    <button className="coach-fab" aria-label="Coach AI öffnen" onClick={openCoach}>✦ COACH AI</button>
+    {open&&<div className="dialog-overlay" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="coach-title"><div className="dialog-shell">
+      <header className="dialog-header"><div><strong id="coach-title">ALBA<span>thek</span> · Coach</strong><small>{apiKey.trim()?'KI-Dialog · OpenAI':'Ohne KI · Basissuche & Planung'}</small></div><div><button onClick={()=>setSettingsOpen(!settingsOpen)} aria-expanded={settingsOpen}>⚙ OpenAI</button><button onClick={()=>setOpen(false)} aria-label="Coach AI schließen">✕</button></div></header>
+      {settingsOpen&&<form className="dialog-settings" onSubmit={e=>{e.preventDefault();saveSettings();}}><label>OpenAI API-Key<input type="password" autoComplete="off" value={apiKey} onChange={e=>setApiKey(e.target.value)}/></label><label>Modell<select value={model} onChange={e=>setModel(e.target.value)}>{['gpt-5.6-luna','gpt-5.6-terra','gpt-5.6','gpt-5-mini'].map(m=><option key={m}>{m}</option>)}</select></label><p>Schlüssel und Gespräch bleiben in dieser Browsersitzung. Für KI-Antworten werden Gespräch und passende Katalogdaten an OpenAI übertragen. Bitte keine personenbezogenen Daten von Kindern eingeben.</p><button type="submit">Speichern</button><button type="button" onClick={()=>{cancel();setApiKey('');try{sessionStorage.removeItem('albathek-openai-key');}catch{/* in-memory fallback */}}}>Schlüssel entfernen</button></form>}
+      <div className="dialog-context"><span>{settings[group.choice.setting]} · {group.choice.age} Jahre</span><span>{group.choice.children} Kinder</span><span>{group.choice.duration} Min.</span><span>{group.choice.room}</span>{group.interests.map(x=><span key={x}>{x}</span>)}{group.ballPresent&&<span>{group.balls===null?'Ball · Anzahl offen':`${group.balls} Ball${group.balls===1?'':'e'}`}</span>}<span>{professions[group.choice.profession]}</span></div>
+      {storageNotice&&<p role="status" className="dialog-notice">{storageNotice}</p>}
+      <nav className="dialog-tabs" aria-label="Coach-Arbeitsbereich">{['Chat','Spiele','Einheit'].map(t=><button key={t} aria-pressed={tab===t} onClick={()=>setTab(t)}>{t}{t==='Spiele'?` (${state.resultIds.length})`:''}</button>)}</nav>
+      <div className="dialog-body" data-tab={tab} data-work-tab={workTab}>
+        <section className="dialog-chat" aria-label="Gespräch"><div className="dialog-messages" role="log" aria-live="polite"><div className="dialog-bubble assistant"><small>DEIN COACH</small><p>Was braucht eure Gruppe heute? Beschreibe eure Situation. Wir finden zuerst Spiele – eine Einheit bauen wir auf deinen Wunsch.</p></div>{state.messages.map((m,i)=><div className={`dialog-bubble ${m.role}`} key={i}><small>{m.role==='user'?'DU':apiKey?'COACH':'REGELBASIERTE HILFE'}</small><p>{m.text}</p></div>)}{partial&&<div className="dialog-bubble assistant"><p>{partial}</p></div>}<div ref={end}/></div>
+          <div className="dialog-composer">{error&&<div role="alert" className="dialog-error">{error} {authError&&<button onClick={()=>setSettingsOpen(true)}>OpenAI-Einstellungen</button>}<button disabled={busy} onClick={()=>{setState(s=>({...s,messages:s.messages.at(-1)?.role==='user'?s.messages.slice(0,-1):s.messages}));setPrompt(retry);setError('');}}>Nachricht erneut bearbeiten</button></div>}
+            {busy?<div role="status">{status} <button onClick={()=>{cancel();setError('Abgebrochen. Bisherige Ergebnisse bleiben erhalten.');}}>Abbrechen</button></div>:<div className="dialog-suggestions">{suggestions.map(s=><button key={s} onClick={()=>send(s)}>{s}</button>)}</div>}
+            <form onSubmit={e=>{e.preventDefault();send(prompt);}}><label className="sr-only" htmlFor="coach-message">Nachricht an den Coach</label><textarea id="coach-message" placeholder="Frag nach oder passe eure Einheit an …" value={prompt} maxLength={1600} onChange={e=>setPrompt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(prompt);}}}/><button disabled={busy||!prompt.trim()} type="submit">Senden ↑</button></form><small>Enter senden · Shift + Enter neue Zeile</small>
+          </div></section>
+        <section className="dialog-work" aria-label="Spiele und Einheit"><div className="dialog-work-tabs">{['Spiele','Einheit'].map(t=><button key={t} aria-pressed={workTab===t} onClick={()=>setWorkTab(t)}>{t}</button>)}</div><div className="dialog-work-actions"><button onClick={()=>reset(false)} disabled={busy}>Neue Einheit</button><button onClick={()=>reset(true)}>Neues Gespräch</button></div>
+          <div className="dialog-results"><h2>Passende Spielideen <small>{state.resultIds.length} / 657</small></h2>{!state.resultIds.length&&<p>Deine Treffer erscheinen hier. Alle öffentlichen Spiele bleiben durchsuchbar; Testprofile sind nur bei aktivierter Auswahl beteiligt.</p>}{state.resultIds.map(card)}</div>
+          <div className="dialog-plan"><h2>Eure Einheit</h2>{plan?<><p>{plan.headline}</p>{planCheck(state).map(w=><p className="dialog-notice" key={w}>{w}</p>)}{plan.timeline.map((item,i)=><article className="dialog-plan-step" key={`${i}-${item.gameId}`}><small>{item.duration} MIN · {item.phase}</small><h3>{item.title}</h3><p>{item.reason}</p><p className="dialog-muted">{item.tip}</p><a href={byId.get(item.gameId)!.href} target="_blank" rel="noreferrer">ALBA-Original öffnen ↗</a></article>)}<p className="dialog-muted">{plan.read}</p><p>{plan.coachNote}</p>{plan.warnings.map(w=><p className="dialog-muted" key={w}>{w}</p>)}<button disabled={busy||state.plans.length<2} onClick={()=>setState(s=>({...s,plans:s.plans.slice(0,-1),turns:[],messages:[...s.messages,{role:'assistant',text:'Änderung zurückgenommen. Der vorherige Planstand ist wieder aktiv.'}]}))}>Änderung zurücknehmen</button><button onClick={()=>window.print()}>Spielplan drucken</button></>:<p>Noch kein Plan. Bitte den Coach, aus den Treffern eine Einheit zu bauen.</p>}</div>
+        </section>
+      </div>
+    </div></div>}
+  </>;
 }
