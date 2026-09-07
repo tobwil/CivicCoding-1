@@ -118,6 +118,12 @@ Die KI arbeitet über drei validierte Katalogfunktionen: Suchen, eine bereits re
 
 Daraufhin wurden der komplette Live-Dialog erneut durchgespielt, Sitzungserhalt nach Schließen und Neuladen geprüft, Desktop- und Mobile-Aufnahmen aktualisiert sowie Produktionsbuild, Lint und alle 26 Tests wiederholt, bevor der Stand veröffentlicht wurde.
 
+## Realistischeres Startbeispiel
+
+**Nutzer:** „und das beispiel 11 Kinder meist fußballer, ball ist sehr schlecht, bitte durch ein real(eres) austauschen“
+
+Das knappe Stichwortbeispiel wurde durch eine konkrete Alltagssituation ersetzt: „14 Kinder in der Grundschule, 7–9 Jahre, 30 Minuten in der Sporthalle. Wir haben 4 Bälle und Hütchen; alle sollen viel in Bewegung sein.“ Der Parser-Abgleich bestätigt Einrichtung, jüngstes Alter, Gruppengröße, Dauer, Raum und Ballanzahl; anschließend stehen sechs Katalogtreffer bereit.
+
 ### Verweise
 
 - [Projektübersicht](../README.md)
