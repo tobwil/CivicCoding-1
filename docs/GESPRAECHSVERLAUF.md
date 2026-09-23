@@ -1,6 +1,16 @@
 # Gesprächs- und Entscheidungsverlauf
 
-Stand: 07.09.2026 (Juli-Verlauf mit September-Fortsetzung)
+Stand: 23.09.2026 (Juli-Verlauf mit September-Fortsetzung)
+
+## KITA-Personas und begrenzter Evaluationskatalog · 23.09.2026
+
+Auftrag: aktuellen GitHub-Stand abrufen, Änderungen prüfen, einen neuen Feature-Branch anlegen und den Prototyp gemäß ALBAs letzter Mail ausschließlich mit der angehängten KITA-Content-Tabelle und ausgearbeiteten Personas betreiben.
+
+Der Abgleich ergab keinen neuen Commit auf main. Prototype_V1 zeigt auf einen älteren Stand. Neuer Branch: `codex/kita-personas-alba` vom aktuellen main.
+
+Die bereitgestellten Mails und Anhänge wurden ausgewertet. Maßgeblich ist die Mail vom 22.09.2026. Wegen abweichender Spaltenbuchstaben und widersprüchlicher Zeitregeln wurde nachgefragt. Bestätigung des Nutzers: **„Ja, eindeutige Regeln umsetzen; Unklarheiten kennzeichnen“**.
+
+Umsetzung: 129 benannte Tabellen-Einträge, vier KITA-Personas in drei Regelgruppen, gemeinsame Regeln für Finder und Coach, sichtbare Datenlücken, Spielauswahl und Themenwelt. Alte Testprofile und breiter öffentlicher Katalog sind nicht mehr aktive Quellen. Unklare spaltenabhängige Ketten-/Einheitenregeln bleiben deaktiviert. Private Mails und Kontaktdaten werden nicht in dieses Protokoll übernommen. Details und Prüfgrenzen: [KITA-Teststand](KITA-TESTSTAND.md).
 
 Dieses Protokoll sichert die **sichtbaren Projektgespräche** und die daraus entstandenen Produktentscheidungen. Interne Systemhinweise, Werkzeugausgaben, Zugangsdaten und nicht sichtbare Arbeitsnotizen sind bewusst nicht enthalten. Formulierungen des Assistenten sind dort zusammengefasst, wo der vollständige technische Arbeitsstrom für die Projektübergabe keinen Mehrwert bietet.
 

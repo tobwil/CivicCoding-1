@@ -9,9 +9,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
   const protocol = headerList.get("x-forwarded-proto") ?? "https";
   const origin = host ? `${protocol}://${host}` : "http://localhost:3000";
-  const title = "ALBAthek Match – Das passende Spiel für heute";
+  const title = "ALBAthek Match – KITA-Personas im Test";
   const description =
-    "Ein personalisierter ALBAthek-Prototyp: passende Bewegungsspiele nach Gruppe, Zeit, Ziel und Material finden.";
+    "ALBA-KITA-Teststand: Spiele ausschließlich aus der Content-Tabelle mit vier ausgearbeiteten Personas erproben.";
 
   return {
     metadataBase: new URL(origin),

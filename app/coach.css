@@ -145,3 +145,11 @@
   .dialog-plan { display:block!important; }
   .dialog-plan-step { break-inside:avoid; }
 }
+/* KITA evaluation: compact profile and explicit selected-game story context. */
+.dialog-context label { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:14px; }
+.dialog-context select { max-width:100%; border:1px solid var(--line); padding:8px; border-radius:8px; background:white; color:var(--blue); }
+.dialog-theme { padding:12px 0; border-bottom:1px solid var(--line); margin-bottom:12px; font-size:14px; }
+.dialog-theme p { margin:0 0 8px; }
+.dialog-theme label { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.dialog-theme input { min-width:0; flex:1; padding:10px; border:1px solid var(--line); border-radius:8px; }
+.dialog-theme button { margin:8px 8px 0 0; min-height:44px; padding:8px; color:var(--blue); }
