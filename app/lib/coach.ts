@@ -56,14 +56,18 @@ export function materialConflict(game: CatalogGame, group: Group) {
   if (group.balls === 1 && /ball/.test(m) && /(?:jedes kind|alle kinder|pro kind|jedes paar|beide).{0,55}(?:einen|ein|ihre[n]?) (?:hand|fuss|basket|tennis)?ball|ihre balle|mit ballen|mehrere balle|zwei balle|drei balle|\b[2-9] balle/.test(m + ' ' + d)) return true;
   return false;
 }
-export function findGames(group: Group, query = '', excluded: string[] = []) {
+export function findGames(group: Group, query = '', excluded: string[] = [], accepts: (game: CatalogGame) => boolean = () => true) {
   const terms = normalize([query, ...group.interests].join(' ')).replace(/fussballer\w*/g,'fussball').split(/[^a-z]+/).filter(t => t.length > 3 && !['kinder','meist','minuten','haben','einen','spiel','spiele','sporthalle'].includes(t));
   const ranked = catalog.map(game => {
     const match = catalogMatch(game, group.choice);
     const t = normalize(game.title + ' ' + (game.description ?? ''));
     return { game, eligible: match.eligible && !excluded.includes(game.id) && !materialConflict(game,group), score: match.score + terms.filter(x => t.includes(x)).length * 20 + terms.filter(x=>normalize(game.title).includes(x)).length * 10 + (group.balls===1&&/ein(?:en)? (?:fuss|hand|basket)?ball/.test(normalize(game.materials??''))?15:0) + (group.ballPresent && /ball/.test(game.materials ?? '') ? 3 : 0) + (/ruhig|einfach/.test(normalize(query)) && /wahrnehm|gleichgewicht|geschick|kooper/.test(t) ? 35 : 0) };
-  }).filter(m => m.eligible).sort((a,b) => b.score-a.score);
+  }).filter(m => m.eligible && accepts(m.game)).sort((a,b) => b.score-a.score);
   return uniqueFamilies(ranked.map(m => m.game));
+}
+export function findFollowingGames(group: Group, first: CatalogGame, excluded: string[] = []) {
+  if (!first.kita || excluded.includes(first.id) || !catalogMatch(first,group.choice).eligible || materialConflict(first,group)) return [];
+  return findGames(group,'',excluded,g => !!g.kita && followsKita(first.kita!,g.kita,group.choice.profession));
 }
 export function actionFor(text: string, state?: Session): { kind: 'explanation' | 'results' | 'plan'; slot: number | null } {
   const t = normalize(text);
@@ -153,8 +157,8 @@ export function localTurn(state: Session, text: string, excluded: string[] = [])
   if (action.kind === 'explanation') {
     const game = gameReference(text,next);
     if (/folgespiel|nachstes spiel/.test(normalize(text))) {
-      const following = game ? findGames(next.group,'',excluded).filter(g=>followsKita(game.kita!,g.kita!)) : [];
-      reply = following.length ? 'Passende Folgespiele nach der eindeutigen Material-/Kategorienregel: ' + following.slice(0,3).map(g=>g.title).join('; ') : 'Kein verlässlich passendes Folgespiel nach den eindeutigen Tabellenregeln gefunden. Unklare Spaltenregeln werden nicht angewendet.';
+      const following = game ? findFollowingGames(next.group,game,excluded) : [];
+      reply = following.length ? 'Passende Folgespiele nach den umgesetzten Persona-, Material- und Kategorienregeln: ' + following.slice(0,3).map(g=>g.title).join('; ') : 'Kein passendes Folgespiel nach den umgesetzten Persona-, Material- und Kategorienregeln gefunden. Bitte Gruppendaten und Material prüfen; AP/AR bleiben ungeklärt.';
     } else if (/ich wahle spiel/.test(normalize(text))) {
       reply = game ? game.title + ' ist ausgewählt. In welcher Themenwelt möchtet ihr spielen? Ohne API-Key kann ich den Tabellen-Ablauf zeigen, aber keine KI-Bewegungsgeschichte erstellen.' : 'Bitte zuerst ein angezeigtes Spiel auswählen.';
     } else {

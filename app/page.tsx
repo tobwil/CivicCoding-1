@@ -63,7 +63,7 @@ export default function Home() {
       {!matches.length&&<p>Keine Treffer für diese Ansicht. Ändere die Suche oder zeige alle Tabellen-Einträge.</p>}
       {matches.length>visible&&<button onClick={()=>setVisible(n=>n+24)}>Weitere Spiele laden ↓</button>}
       {!!dismissed.length&&<button onClick={()=>setDismissed([])}>Ausgeblendete Spiele wieder zeigen ({dismissed.length})</button>}
-      <details className="coach-data-notes"><summary>Grenzen dieses Teststands</summary><p>Originaltexte bleiben unverändert. Fehlende oder uneindeutige Mindestalter, Gruppengrenzen, Niveau- und Vorbereitungsangaben verhindern eine Empfehlung. Fehlende Abläufe und Materialien werden angezeigt.</p><p>Unklare Spaltenzuordnungen, davon abhängige Kettenregeln und die widersprüchliche 30-Minuten-Vorgabe bleiben deaktiviert. Es werden keine Spiele aus dem früheren Gesamtkatalog ergänzt.</p></details>
+      <details className="coach-data-notes"><summary>Grenzen dieses Teststands</summary><p>Originaltexte bleiben unverändert. Fehlende oder uneindeutige Mindestalter, Gruppengrenzen, Niveau- und Vorbereitungsangaben verhindern eine Empfehlung. Fehlende Abläufe und Materialien werden angezeigt.</p><p>Plausible Spaltenzuordnungen und erweiterte Folgespiel-Regeln sind als Annahmen umgesetzt. AP/AR und die automatische Einheit bei 30 Minuten bleiben offen. Es werden keine Spiele aus dem früheren Gesamtkatalog ergänzt.</p></details>
     </section>;
   }
   return <main><CoachAI context={defaultChoice} excludedIds={dismissed} favorites={favorites} toggleFavorite={toggleFavorite} renderAudit={audit}/></main>;

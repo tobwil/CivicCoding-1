@@ -41,7 +41,7 @@ Unstrittige Schreibweisen werden vereinheitlicht: `Minimal`, `minimal ` und `mim
 1. Situation beschreiben, bis zu sechs geprüfte Spiele erhalten.
 2. Eine Karte auswählen; die Auswahl bleibt in der Sitzung erhalten.
 3. Themenwelt angeben. Mit API-Key liest der Coach den Tabellen-Ablauf und kann eine ausdrücklich als KI-Rahmung bezeichnete Bewegungsgeschichte formulieren. Ohne Key wird keine KI-Geschichte vorgetäuscht.
-4. Optional ein Folgespiel erfragen. Aktiv ist nur die eindeutige Prosa-Regel: Materialgewöhnung → Laufspiel oder umgekehrt bei identischen normalisierten Materiallisten; Laufspiel ohne Material → Fangspiel ohne Material. Unterschiedliche Familien und Einsteiger-Niveau auf beiden Seiten sind erforderlich.
+4. Optional ein Folgespiel erfragen. Die beiden Einstiegsrollen nutzen Materialgewöhnung → Laufspiel oder umgekehrt bei identischen normalisierten Materiallisten sowie Laufspiel ohne Material → Fangspiel ohne Material, jeweils auf Einsteiger-Niveau. Für die qualifizierte Erzieher- und erfahrene Trainer-Persona sind zusätzliche Kategorienwechsel aktiviert. Beide Spiele müssen zu den aktuellen Gruppenbedingungen passen und unterschiedliche Familien haben. Siehe [Zuordnung, Annahmen und genaue Regeln](KITA-REGELANNAHMEN.md).
 
 Finder, lokale Coach-Suche und serverseitige KI-Werkzeuge verwenden denselben Katalog und dieselbe Regelprüfung. Die API akzeptiert keine Grundschul-/Vereins-Personas, alten numerischen Spiel-IDs oder Sitzungen des früheren Katalogs. Alte Merkliste und Chatdaten werden nicht in den KITA-Teststand migriert; sie bleiben für die frühere Version unberührt.
 
@@ -51,15 +51,17 @@ Die Erzeugung freier KI-Texte ist keine mathematische Garantie für fachlich kor
 
 ## Mit dem Auftraggeber bestätigte offene Punkte
 
-Am 23.09.2026 wurde ausdrücklich bestätigt: eindeutige Regeln umsetzen, unklare Regeln kennzeichnen und vorerst nicht aktivieren.
+Am 23.09.2026 wurde zunächst bestätigt: eindeutige Regeln umsetzen und unklare Regeln vorerst nicht aktivieren. Anschließend beauftragte der Auftraggeber ausdrücklich die logisch rekonstruierbaren Zuordnungen als dokumentierte Annahmen. Das ersetzt die anfängliche pauschale Deaktivierung buchstabenabhängiger Ketten; eine fachliche Bestätigung durch ALBA steht noch aus.
 
 - Die Buchstaben AF/AG/AH/AK/AO/AN/AM/AP/AR bezeichnen in der gelieferten Tabelle nicht die im Persona-Dokument gemeinten Spielkategorien. Beispielsweise ist AF „schnell vorbereitet“, AG „kleine Halle“, AM „Leibchen“ und AN „Bälle“.
-- S ist „Platzbedarf pro Kind“, nicht Sportgerät. Die explizit benannten einfachen Materialketten verwenden daher I „Materialien“, konservativ mit vollständiger Materialübereinstimmung. Die allgemeineren, buchstabenabhängigen Ketten bleiben aus.
+- S ist „Platzbedarf pro Kind“, nicht Sportgerät. Die Materialketten verwenden I „Materialien“, konservativ mit vollständiger Materialübereinstimmung. Neun rekonstruierte Bezüge werden zentral über benannte Felder angewendet, nicht durch pauschales Verschieben von Buchstaben.
 - Bei genau 30 Minuten steht für die erfahrene Trainer-Persona sowohl Dreier-Einheit als auch Spielesammlung. Keine dieser widersprüchlichen Automatikregeln wird bevorzugt.
-- „AP?“ ist eine offene Alternative, keine freigegebene Regel.
-- Die Fortgeschrittenen-Ketten hängen ebenfalls von den ungeklärten Spaltenbezügen ab und bleiben aus.
+- AP und AR lassen sich nicht als Spielkategorien rekonstruieren. Davon abhängige Automatiken bleiben aus.
+- Die Fortgeschrittenen-Ketten sind mit konservativer Einsteiger-Abschlussregel aktiviert. Zuordnung und Auslegungen sind im [Annahmenprotokoll](KITA-REGELANNAHMEN.md) als zu bestätigende Festlegungen dokumentiert.
 
 ## Prüfstand
+
+Aktuelle Regelkorrektur vom 23.09.2026: 55 automatisierte Tests, vinext-Build, Next-TypeScript und ESLint erfolgreich. Sieben zusätzliche Tests prüfen die rekonstruierte Zuordnung, Persona-Ketten, Materialgleichheit, Alters-/Zeitgrenzen und konsistente lokale/API-Werkzeugausführung. Die neuen API-Prüfungen sind simuliert, keine erneuten Live-KI-Dialoge. Die zwei Handouts unter `docs/uebergabe` wurden aktualisiert und alle neun Seiten visuell geprüft; die eingebetteten Screenshots dokumentieren die vorherigen Live-Tests auf c1426ee.
 
 Aktualisierung: Der anschließende Coach-first-Umbau ergänzt vier Tests (jetzt 34) und eine visuelle Browserprüfung. Aktueller Oberflächenstand und Screenshots: [Coach-first-Prüfung](kita-coach-first-review.md). Die folgenden Angaben beschreiben die ursprüngliche KITA-Auslieferung.
 

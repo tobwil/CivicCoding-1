@@ -1,4 +1,4 @@
-import { kitaData, evaluateKita, kitaNotices, type KitaGame } from "./kita.ts";
+import { kitaData, evaluateKita, kitaNotices, kitaRuleNotice, type KitaGame } from "./kita.ts";
 import { normalize, type Choice } from "./alba.ts";
 
 export type CatalogGame = {
@@ -38,5 +38,5 @@ export function planCandidates(prompt: string, context: Choice, excludedIds: str
   return uniqueFamilies([...ranked.slice(0,12), ...closing]);
 }
 export function catalogWarnings(context: Choice) {
-  return [...kitaNotices(context), "KITA-Teststand: ausschließlich Content-Tabelle vom 22.09.2026. Fehlende Quelldaten werden nicht ergänzt.", "Die spaltenbasierten Ketten-/Einheitenregeln sind bis zur Klärung mit ALBA nicht aktiv. Zeitaufteilung und freie Einheiten sind eigene Planungsvorschläge."];
+  return [...kitaNotices(context), "KITA-Teststand: ausschließlich Content-Tabelle vom 22.09.2026. Fehlende Quelldaten werden nicht ergänzt.", kitaRuleNotice];
 }

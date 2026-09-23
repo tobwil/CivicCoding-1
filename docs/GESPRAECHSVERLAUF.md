@@ -148,6 +148,10 @@ Daraufhin wurden der komplette Live-Dialog erneut durchgespielt, Sitzungserhalt 
 
 Das knappe Stichwortbeispiel wurde durch eine konkrete Alltagssituation ersetzt: „14 Kinder in der Grundschule, 7–9 Jahre, 30 Minuten in der Sporthalle. Wir haben 4 Bälle und Hütchen; alle sollen viel in Bewegung sein.“ Der Parser-Abgleich bestätigt Einrichtung, jüngstes Alter, Gruppengröße, Dauer, Raum und Ballanzahl; anschließend stehen sechs Katalogtreffer bereit.
 
+## Rekonstruierte KITA-Regeln vom 23. September 2026
+
+Der Auftraggeber bat darum, plausible Spaltenbezüge selbst zu korrigieren, Code und Handouts anzupassen und den Feature-Branch sowie die geschützte Netlify-Testvorschau zu aktualisieren. Neun Verweise werden jetzt über benannte Felder zugeordnet; erweiterte Folgespiel-Regeln sind aktiviert. Die Zuordnung ist eine ausdrücklich dokumentierte Annahme, keine fachliche Freigabe durch ALBA. AP/AR, die automatische Zeitlogik und redaktionelle Datenfragen bleiben offen. Die Originalunterlagen werden nicht verändert. Details stehen im [Annahmenprotokoll](KITA-REGELANNAHMEN.md).
+
 ### Verweise
 
 - [Projektübersicht](../README.md)

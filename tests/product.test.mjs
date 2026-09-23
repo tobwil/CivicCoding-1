@@ -86,7 +86,7 @@ test('choose game then theme preserves results and plans, uses exact card refere
   s=localTurn(s,'Einheit für 30 Minuten');
   assert.equal(gameReference('Ich wähle Spiel 2.',s).id,s.resultIds[1]);
 });
-test('only explicit category/material chains are enabled, not outdated letters',()=>{
+test('beginner roles keep the explicit category/material chains',()=>{
   const a={...source,id:'a',family:'a',categories:['Materialgewöhnung'],materials:'Reifen'};
   const b={...source,id:'b',family:'b',categories:['Laufspiel'],materials:'Reifen'};
   assert.equal(followsKita(a,b),true);
@@ -118,7 +118,7 @@ test('no automatic unit at 30 minutes; explicit free plans stay inside whitelist
     const s=newSession(choice({duration})),p=makePlan(s,'Einheit erstellen');
     assert.equal(p.timeline.reduce((n,t)=>n+t.duration,0),duration);
     assert.ok(p.timeline.every(t=>catalogMatch(catalog.find(g=>g.id===t.gameId),s.group.choice).eligible));
-    assert.match(p.warnings.join(' '),/nicht aktiv/);
+    assert.match(p.warnings.join(' '),/automatische 30-Minuten-Einheit bleiben offen/);
   }
   assert.throws(()=>makePlan(newSession(),'Einheit erstellen',[],['474','645','638']));
 });

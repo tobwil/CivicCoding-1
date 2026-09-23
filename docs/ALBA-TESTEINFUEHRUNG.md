@@ -53,7 +53,7 @@ Wenn ihr parallel Suchtreffer und eine Einheit vorliegen habt, könnt ihr eindeu
 
 ## Grenzen des Teststands
 
-- Widersprüchliche oder nicht eindeutig zugeordnete Regeln aus den Unterlagen bleiben nach Rücksprache deaktiviert. Das betrifft insbesondere einige Spielketten und die Regel für genau 30 Minuten.
+- Plausible Spaltenbezüge und erweiterte Folgespiel-Regeln sind als dokumentierte Annahmen umgesetzt. Bitte die [Zuordnung und konservativen Auslegungen](KITA-REGELANNAHMEN.md) bestätigen und die Verweise in den Unterlagen aktualisieren. AP/AR und die widersprüchliche automatische Zeitlogik bleiben offen; die davon abhängigen Automatiken sind weiterhin aus.
 - Fehlende notwendige Auswahlkriterien können Empfehlungen verhindern. Fehlende Abläufe dürfen nicht durch erfundene Originalregeln ersetzt werden.
 - Materialangaben sind noch keine vollständige Inventarprüfung. Ein Treffer mit Reifen kann zusätzlich andere Geräte benötigen; nicht dokumentierte Mengen bleiben offen.
 - Die freie Planung verwendet eine einfache Zeitaufteilung, keine aus den Originalen belegten Spieldauern.
