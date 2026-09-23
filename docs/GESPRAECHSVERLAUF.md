@@ -2,6 +2,12 @@
 
 Stand: 23.09.2026 (Juli-Verlauf mit September-Fortsetzung)
 
+## Coach als zentrale Testoberfläche · 23.09.2026
+
+Der Nutzer beanstandete den unklaren Bearbeitungsstatus, den Zugang zum Coach, die Übernahme der Startseiten-Filter und die Formatierung. Vorschlag: direkter Coach-Einstieg, Gruppendaten nur dort, tatsächlicher KI-Status, erkennbare Vorauswahl, sauber formatierte Antworten und Karten sowie eine separate Datenprüfung. Auf die Frage nach Umsetzung auf demselben Branch und Aktualisierung der geschützten Vorschau antwortete der Nutzer: **„ja“**.
+
+Umsetzung und Prüfgrenzen einschließlich aktueller Screenshots: [Coach-first-UI-Prüfung](kita-coach-first-review.md). KITA-Datenbasis und bestätigte fachliche Regeln bleiben unverändert.
+
 ## KITA-Personas und begrenzter Evaluationskatalog · 23.09.2026
 
 Auftrag: aktuellen GitHub-Stand abrufen, Änderungen prüfen, einen neuen Feature-Branch anlegen und den Prototyp gemäß ALBAs letzter Mail ausschließlich mit der angehängten KITA-Content-Tabelle und ausgearbeiteten Personas betreiben.

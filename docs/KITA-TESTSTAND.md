@@ -61,6 +61,8 @@ Am 23.09.2026 wurde ausdrücklich bestätigt: eindeutige Regeln umsetzen, unklar
 
 ## Prüfstand
 
+Aktualisierung: Der anschließende Coach-first-Umbau ergänzt vier Tests (jetzt 34) und eine visuelle Browserprüfung. Aktueller Oberflächenstand und Screenshots: [Coach-first-Prüfung](kita-coach-first-review.md). Die folgenden Angaben beschreiben die ursprüngliche KITA-Auslieferung.
+
 30 automatisierte Tests decken Datenabgrenzung, vier Personas, Alter und Gruppen-/Ortsgrenzen, unbekannte Werte, Materialfilter, freie Planversionen, Erklärungsfragen, Spielauswahl und Themenwelt sowie Quellenbindung ab. API-Tests verwenden kontrollierte Responses-Antworten, keine echten API-Aufrufe. Die Netlify-Zugangsschutztests bleiben erhalten.
 
 Zusätzlich geprüft: TypeScript der Next-Anwendung, ESLint, Produktionsbuild und erfolgreicher lokaler Seitenaufruf. Keine neue visuelle Browser-Abnahme und keine Messung realer OpenAI-Antwortzeiten für diesen Stand. Historische Screenshots im Repository dokumentieren den früheren Gesamtkatalog, nicht diesen KITA-Stand.

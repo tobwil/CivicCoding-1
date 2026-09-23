@@ -8,12 +8,14 @@ Dieser Feature-Branch setzt ALBAs Wunsch vom 22.09.2026 um: **ausschließlich di
 
 ## Für Nutzende
 
-1. **Profil wählen:** Erzieher:in mit/ohne Sportqualifikation oder Vereinstrainer:in mit/ohne Kita-Erfahrung. Das Profil bleibt auf diesem Gerät gespeichert.
-2. **Gruppe beschreiben:** Alter, Kinderzahl, Ort, Zeit und gewünschtes Material einstellen.
-3. **Spielesammlung prüfen:** Passende Spiele ansehen. Unter „Anleitung & Datenprüfung“ stehen Originalablauf, Material, Tipp, Tabellenzeile und mögliche Datenlücken. „Alle Tabellen-Einträge prüfen“ zeigt auch ungeeignete oder unvollständige Einträge mit Gründen.
-4. **Coach nutzen:** Situation beschreiben, eine Spielkarte auswählen und eine Themenwelt angeben. Mit OpenAI-Key kann der Coach daraus eine Bewegungsgeschichte als eigene sprachliche Rahmung entwickeln; Originalregeln dürfen nicht verändert oder ergänzt werden.
+1. **Direkt im Coach starten:** Kein zusätzlicher Einstieg und keine separaten Startseiten-Filter.
+2. **Angaben bearbeiten:** Profil, Alter, Kinderzahl, Ort, Zeit und Material direkt im Coach einstellen und übernehmen. Chat und Datenprüfung verwenden denselben Gruppenstand; erkannte neue Angaben im Chat aktualisieren die Zusammenfassung. Das bestätigte Profil bleibt gerätelokal gespeichert.
+3. **Spiele finden:** Situation senden. Ohne Schlüssel erfolgt eine regelbasierte Suche. Mit Schlüssel zeigt der Coach den tatsächlichen Verarbeitungsschritt und „Abbrechen“. Früh sichtbare lokale Treffer sind als Vorauswahl markiert; sie sind noch keine fertige KI-Antwort.
+4. **Spiel auswählen und Themenwelt entwickeln:** Eine Spielkarte auswählen und eine Themenwelt angeben. Mit OpenAI-Key kann der Coach daraus eine Bewegungsgeschichte als eigene sprachliche Rahmung entwickeln; Originalregeln dürfen nicht verändert oder ergänzt werden.
 5. **Nachfragen:** Aufbau erklären lassen oder ein Folgespiel nach den eindeutig beschriebenen Regeln erfragen. Freie Einheiten mit Ersetzen, Rücknahme und Drucken bleiben auf ausdrücklichen Wunsch möglich.
 6. **Merken:** Favoriten bleiben gerätelokal. Der Teststand nutzt eine eigene Merkliste und übernimmt keine Spiele aus dem alten Katalog.
+
+Über **Datenbasis prüfen** bleiben alle 129 Einträge und die Merkliste zugänglich. „Anleitung & Datenprüfung“ zeigt Originalablauf, Material, Tabellenzeile und mögliche Datenlücken. „Zum Coach“ kehrt ohne Verlust des Gesprächs zurück. Eine Änderung im Formular startet keine kostenpflichtige KI-Anfrage: Erst eine gesendete Nachricht ruft den Coach auf.
 
 Ohne API-Key funktionieren Suche, Tabellen-Anleitungen und regelbasierte freie Planung. Eine echte KI-Beratung oder Bewegungsgeschichte wird nicht vorgetäuscht.
 
@@ -35,6 +37,7 @@ React 19, TypeScript, Next.js / vinext / Vite. Keine Datenbank. Der bestehende C
 | `app/lib/kita.ts` | Vier Personas, gemeinsame Regeln und eindeutige Folgespielprüfung |
 | `app/lib/catalog.ts` | Ausschließlich KITA-Katalog und Suche |
 | `app/lib/coach.ts` | Dialogzustand, lokale Suche, geprüfte Planversionen |
+| `app/lib/coach-presentation.ts` | Explizite Formularübernahme und sichere Absatz-/Listenformatierung |
 | `app/lib/coach-source.ts` | Originalinformationen aus der Tabelle, kein externer Abruf |
 | `app/api/coach/route.ts` | Gestreamter Dialog und validierte Werkzeuge |
 | `scripts/import-kita.py` | Reproduzierbarer, lesender XLSX-Import |
@@ -79,6 +82,7 @@ Dieser Branch ist als separate, passwortgeschützte Testvorschau verfügbar. Die
 - [Bisheriger geschützter Netlify-Prototyp](https://albathek-match.netlify.app)
 - [Netlify-Betriebsdokumentation](docs/netlify-deployment.md)
 - [Historische Coach-Screenshots und UI-Abnahme](docs/coach-ui-review.md) – noch nicht der KITA-Teststand.
+- [Aktuelle Coach-first-Prüfung und Screenshots](docs/kita-coach-first-review.md)
 
 Netlify bleibt durch die Edge-Funktion geschützt. Das Passwort liegt nur in der geheimen Variable `COACH_SITE_PASSWORD`, niemals im Repository oder in `NEXT_PUBLIC_*`. Es gibt keinen serverseitig gespeicherten OpenAI-Key. Für einen später beauftragten Deploy die Betriebsdokumentation beachten.
 

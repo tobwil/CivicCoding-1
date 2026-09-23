@@ -153,3 +153,75 @@
 .dialog-theme label { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .dialog-theme input { min-width:0; flex:1; padding:10px; border:1px solid var(--line); border-radius:8px; }
 .dialog-theme button { margin:8px 8px 0 0; min-height:44px; padding:8px; color:var(--blue); }
+
+/* Coach-first KITA review: one group, one working surface. */
+.coach-page { padding:0; background:var(--paper); }
+.coach-page .dialog-shell { width:100%; max-width:1680px; border-radius:0; box-shadow:none; }
+.coach-page .dialog-header { min-height:72px; }
+.coach-page .dialog-header-actions button:last-child { width:auto; padding:8px 12px; }
+.coach-page .dialog-context { max-height:28dvh; }
+.coach-page .coach-context-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.coach-context-heading>div { display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline; }
+.coach-page .dialog-context span+span::before { content:none; }
+.coach-context-heading strong { color:var(--blue); }
+.coach-page .dialog-context p { font-size:.875rem; margin-top:4px; }
+.coach-page .coach-context-notice { color:var(--blue-bright); padding-left:10px; border-left:3px solid var(--yellow); }
+.coach-conditions { flex-shrink:0; overflow:auto; max-height:48dvh; padding:16px 24px; border-bottom:1px solid var(--line); background:var(--paper); display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.coach-conditions label { display:flex; flex-direction:column; gap:8px; font-size:.875rem; font-weight:600; }
+.coach-conditions :is(input,select) { width:100%; min-height:44px; padding:10px 12px; color:var(--ink); background:white; border:1px solid #95a6bc; border-radius:8px; font:inherit; font-weight:400; }
+.coach-conditions small { font-size:.875rem; line-height:1.5; font-weight:400; color:#52647b; }
+.coach-persona-field,.coach-condition-actions { grid-column:1/-1; }
+.coach-material-field { grid-column:span 2; }
+.coach-condition-actions { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.coach-condition-actions p { margin:0; font-size:.875rem; }
+.coach-page .coach-condition-actions button { background:var(--yellow); flex-shrink:0; }
+.coach-page .dialog-game-no-image { grid-template-columns:minmax(0,1fr); }
+.coach-text p { margin:8px 0 16px; white-space:pre-wrap; }
+.coach-text :is(ol,ul) { padding-left:24px; margin:12px 0 20px; }
+.coach-text ol { list-style:decimal; }
+.coach-text ul { list-style:disc; }
+.coach-text li { padding-left:4px; margin:6px 0; overflow-wrap:anywhere; }
+.coach-text>:last-child { margin-bottom:0; }
+.coach-working { padding:16px 0; border-top:1px solid var(--line); }
+.coach-working p,.dialog-status>span { display:flex; align-items:center; gap:10px; }
+.coach-working>span { display:block; margin-top:8px; font-size:.875rem; color:#52647b; }
+.coach-spinner { display:inline-block; flex-shrink:0; width:18px; height:18px; border:2px solid #cad5e4; border-top-color:var(--blue-bright); border-radius:50%; animation:coach-spin .85s linear infinite; }
+@keyframes coach-spin { to { transform:rotate(360deg); } }
+.coach-page .dialog-status { padding:8px 12px; background:#edf3fa; border-radius:8px; color:var(--blue); }
+.coach-page .coach-preselection { padding:8px 12px; background:#fff9d9; color:var(--blue); font-size:.875rem; }
+.coach-page .dialog-theme { padding:12px 16px; margin:16px 0; border:1px solid var(--line); border-radius:12px; background:var(--paper); }
+.dialog-theme summary { min-height:44px; padding:8px 0; cursor:pointer; font-weight:600; color:var(--blue); }
+.coach-audit-scroll { flex:1; min-height:0; overflow:auto; background:var(--paper); }
+.coach-audit { max-width:1440px; margin:auto; padding:32px 24px; }
+.coach-audit h2 { font-size:1.75rem; margin:0 0 16px; }
+.coach-audit>p { max-width:800px; margin:0 0 16px; }
+.coach-audit .catalog-toolbar { flex-wrap:wrap; gap:12px; }
+.coach-audit .catalog-toolbar button { border-color:var(--line); background:white; }
+.coach-audit .catalog-toolbar button[aria-pressed=true] { background:var(--blue); color:white; }
+.coach-data-notes { margin-top:32px; }
+.coach-data-notes summary { padding:16px 0; cursor:pointer; }
+@media(max-width:1023px) {
+  .coach-page .dialog-context { max-height:24dvh; }
+  .coach-conditions { grid-template-columns:1fr 1fr; padding:16px; }
+  .coach-condition-actions { align-items:flex-start; flex-direction:column; }
+  .coach-context-heading>div { gap:4px 8px; }
+  .coach-page .coach-context-heading { align-items:flex-start; flex-wrap:wrap; gap:4px; }
+  .coach-page .dialog-context p { font-size:.75rem; }
+  .coach-audit { padding:24px 16px; }
+}
+@media(max-width:600px) {
+  .coach-page .dialog-header { min-height:64px; padding:8px 12px; }
+  .coach-page .dialog-brand small { font-size:.75rem; max-width:160px; }
+  .coach-page .dialog-header-actions { gap:0; }
+  .coach-page .dialog-header-actions .coach-audit-toggle { max-width:100px; padding:4px 8px; font-size:.75rem; }
+  .coach-page .dialog-context { padding:8px 12px; }
+  .coach-page .dialog-context .coach-context-heading { font-size:.8125rem; }
+  .coach-page .dialog-context button { padding:4px 0; font-size:.8125rem; }
+  .coach-conditions { max-height:52dvh; }
+  .coach-persona-field select { text-overflow:ellipsis; }
+  .coach-page .dialog-composer { padding:8px 12px max(12px,env(safe-area-inset-bottom)); }
+  .coach-page .dialog-suggestions { margin-bottom:4px; gap:0 8px; }
+  .coach-page .dialog-suggestions button { font-size:.8125rem; padding:4px 0; }
+}
+@media(prefers-reduced-motion:reduce) { .coach-page .coach-spinner { animation:none; } }
+@media print { .coach-audit-toggle,.coach-conditions,.coach-audit-scroll { display:none!important; } }
