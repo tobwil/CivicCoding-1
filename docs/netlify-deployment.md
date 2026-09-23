@@ -1,5 +1,16 @@
 # Netlify-Bereitstellung
 
+## KITA-Regelkorrektur vom 23. September 2026
+
+- Feature-Branch: `codex/kita-personas-alba`; veröffentlichter App-Commit `aa1a16ba2b125a6713e2fdca5d1eee4225ebe352`.
+- Geschützte Testvorschau: https://kita-personas-test--albathek-match.netlify.app/
+- Deploy `6ab3bb0f4f4ff97b68a04825`, Kontext `deploy-preview`, vollständiger Next.js-Build mit Runtime 5.16.0. Keine Produktionsveröffentlichung.
+- 55 Tests, TypeScript, ESLint sowie vinext- und Next.js-Build erfolgreich.
+- Veröffentlicht geprüft: vier anonyme Pfade (Startseite, Coach-API, Bild und interne Funktionsroute) liefern 401; gültige Anmeldung liefert 200 und `private, no-store`. Der aktualisierte Regelhinweis ist im ausgelieferten JavaScript vorhanden. Authentifizierter API-Aufruf ohne OpenAI-Schlüssel liefert erwartungsgemäß 400 JSON. Kein neuer Live-OpenAI-Aufruf.
+- Handouts unter `docs/uebergabe`: Funktionen mit vorherigen Live-Screenshots sowie aktualisierte Annahmen und offene Fragen. Alle neun Dokumentseiten visuell geprüft.
+
+## Ursprüngliche Einrichtung
+
 7. September 2026 · Projekt `albathek-match` · Team `tobwil`.
 
 ## Architektur
