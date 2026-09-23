@@ -48,6 +48,8 @@
 .dialog-keyboard-hint { display:block; margin-top:8px; color:#52647b; font-size:.75rem; }
 .dialog-suggestions { display:flex; flex-wrap:wrap; gap:4px 8px; margin:0 0 12px; }
 .dialog-suggestions button { min-height:44px; padding:6px 8px; text-align:left; border-bottom:1px solid var(--line); border-radius:0; font-weight:400; }
+.coach-page button.coach-create-unit { background:var(--yellow, #ffd900); color:#062b65; border:0; border-radius:12px; padding:10px 16px; min-height:44px; font-weight:700; white-space:normal; }
+.coach-unit-empty { display:grid; justify-items:start; gap:16px; padding:24px 0; }
 .dialog-starters { margin-top:24px; }
 .dialog-starters>p { margin:0 0 12px; color:#52647b; font-size:.75rem; }
 .dialog-starters>div { display:grid; grid-template-columns:1fr 1fr; gap:12px; }

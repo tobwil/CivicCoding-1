@@ -56,6 +56,10 @@ test('API forces proposal after search and returns only a verified confirmation'
     [call('propose_plan',{gameIds:ids},'p')],
   ]);
   assert.deepEqual(out.bodies.map(b=>b.tool_choice),[{type:'function',name:'search_games'},{type:'function',name:'propose_plan'}]);
+  const searchOutput=JSON.parse(out.bodies[1].input.find(i=>i.type==='function_call_output').output);
+  assert.ok(searchOutput.displayedGames.every(g=>typeof g.preparationRaw==='string' && g.preparationMinutes===0));
+  assert.match(searchOutput.note,/minimal \(0\) bedeutet minimale Vorbereitung/);
+  assert.ok(searchOutput.displayedGames.every(g=>typeof g.closingHint==='boolean'));
   assert.equal(out.state.plans.length,1);
   assert.equal(out.state.messages.at(-1).kind,'plan');
   assert.match(out.state.messages.at(-1).text,/freie Einheit für 30 Minuten ist bereit/);

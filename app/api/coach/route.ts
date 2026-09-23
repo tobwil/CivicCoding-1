@@ -1,5 +1,5 @@
 import { validateChoice, type Choice } from '../../lib/alba.ts';
-import { actionFor, byId, findGames, findFollowingGames, gameReference, makePlan, planConfirmation, newSession, restoreSession, understand, type ProviderItem, type Session } from '../../lib/coach.ts';
+import { actionFor, byId, findGames, findFollowingGames, followingReply, closingEvidence, gameReference, makePlan, planConfirmation, newSession, restoreSession, understand, type ProviderItem, type Session } from '../../lib/coach.ts';
 import { kitaPersonas, kitaRuleNotice, kitaNotices, isKitaPersona } from '../../lib/kita.ts';
 import { normalize } from '../../lib/alba.ts';
 import { readSource } from '../../lib/coach-source.ts';
@@ -67,6 +67,8 @@ export async function POST(request:Request){
     try{
       const state=structuredClone(base);state.group=understand(prompt,state.group);
       const action=actionFor(prompt,state),reference=gameReference(prompt,state);
+      const wantsFollowing=action.kind==='explanation'&&/folgespiel|nachstes spiel/.test(normalize(prompt));
+      let followingText:string|undefined;
       if (/ich wahle spiel/.test(normalize(prompt)) && reference) state.selectedGameId=reference.id;
       let kind: 'explanation'|'results'|'clarification'|'plan'=action.kind,changed=false,searched=false;
       const turn:ProviderItem[]=[{role:'user',content:prompt}];
@@ -75,7 +77,7 @@ export async function POST(request:Request){
       for(let round=0;round<=2;round++){
         emit({type:'status',text:round===0?'Coach versteht deine Nachricht …':'Coach formuliert die Antwort …'});
         const firstTool=action.kind!=='explanation'?'search_games':/folgespiel|nachstes spiel/.test(normalize(prompt))&&reference?'next_games':(/aufbau|regel|geschichte|themenwelt|wie viele?|materialmenge/i.test(prompt)||state.selectedGameId)&&reference?'read_game':null;
-        const response=await modelResponse(apiKey,{model:allowedModels.has(body.model)?body.model:'gpt-5.6-luna',reasoning:{effort:'low'},max_output_tokens:2400,instructions:instructions+' Antworte als Klartext ohne Markdown-Sterne. Nummerierte Trefferlisten müssen exakt den sechs angezeigten Treffern entsprechen, keine eigene Umnummerierung. Unbekannte Materialmengen erlauben keine Aussage „passt mit einem Ball“. Bei Mengenfragen Originalinformationen prüfen oder Eignung ausdrücklich offenlassen.',input:[...previous,...turn],tools:coachTools,tool_choice:round===2||changed?'none':round===0&&firstTool?{type:'function',name:firstTool}:action.kind==='plan'?{type:'function',name:'propose_plan'}:'auto'},signal,event=>{if(action.kind!=='plan'||event.type!=='delta')emit(event);});
+        const response=await modelResponse(apiKey,{model:allowedModels.has(body.model)?body.model:'gpt-5.6-luna',reasoning:{effort:'low'},max_output_tokens:2400,instructions:instructions+' Antworte als Klartext ohne Markdown-Sterne. Nummerierte Trefferlisten müssen exakt den sechs angezeigten Treffern entsprechen, keine eigene Umnummerierung. Unbekannte Materialmengen erlauben keine Aussage „passt mit einem Ball“. Bei Mengenfragen Originalinformationen prüfen oder Eignung ausdrücklich offenlassen.',input:[...previous,...turn],tools:coachTools,tool_choice:round===2||changed?'none':round===0&&firstTool?{type:'function',name:firstTool}:action.kind==='plan'?{type:'function',name:'propose_plan'}:'auto'},signal,event=>{if((action.kind!=='plan'&&!wantsFollowing)||event.type!=='delta')emit(event);});
         if(!Array.isArray(response.output))throw new CoachError('Unvollständige KI-Antwort.');
         turn.push(...response.output);
         const calls=response.output.filter(x=>x.type==='function_call');
@@ -97,11 +99,12 @@ export async function POST(request:Request){
               state.group=understand(prompt,state.group);
               const games=findGames(state.group,typeof args.query==='string'?args.query.slice(0,300):'',excluded).slice(0,18);
               state.resultIds=games.slice(0,6).map(g=>g.id);searched=true;kind=action.kind==='plan'?'plan':'results';
-              output={group:state.group,notices:kitaNotices(state.group.choice),displayedGames:games.slice(0,6).map((g,i)=>({number:i+1,id:g.id,title:g.title,description:g.description,materials:g.materials,audience:g.audience,href:g.href,sourceRow:g.kita?.sourceRow,issues:g.kita?.issues,level:g.kita?.level,categories:g.kita?.categories})),additionalPlanCandidates:games.slice(6).map(g=>({id:g.id,title:g.title,description:g.description,materials:g.materials})),note:'Nummerierte Listen müssen exakt displayedGames entsprechen. Nicht dokumentierte Materialmengen bleiben unbekannt. Fehlende Angaben mit Rückfrage klären, Treffer erhalten.'};
+              output={group:state.group,notices:kitaNotices(state.group.choice),displayedGames:games.slice(0,6).map((g,i)=>({number:i+1,id:g.id,title:g.title,description:g.description,materials:g.materials,audience:g.audience,href:g.href,sourceRow:g.kita?.sourceRow,issues:g.kita?.issues,level:g.kita?.level,categories:g.kita?.categories,preparationRaw:g.kita?.preparationRaw,preparationMinutes:g.kita?.preparationMinutes,closingHint:closingEvidence(g)})),additionalPlanCandidates:games.slice(6).map(g=>({id:g.id,title:g.title,description:g.description,materials:g.materials,closingHint:closingEvidence(g),preparationRaw:g.kita?.preparationRaw,preparationMinutes:g.kita?.preparationMinutes})),note:'Nummerierte Listen müssen exakt displayedGames entsprechen. Vorbereitung ist in preparationRaw/preparationMinutes dokumentiert: minimal (0) bedeutet minimale Vorbereitung, nicht unbekannt. Nicht dokumentierte Materialmengen bleiben unbekannt. closingHint ist nur ein Hinweis aus Originaltitel/Kurztext, keine pädagogische Freigabe. Für einen ruhigen Abschluss bevorzugen, falls vorhanden; Wünsche nicht als starre Pflicht auslegen. Fehlende Angaben mit Rückfrage klären, Treffer erhalten.'};
             }else if(call.name==='next_games'){
               const first=byId.get(args.gameId);
               if(!first?.kita || reference?.id!==first.id)throw Error('Bitte das ausgewählte Spiel verwenden.');
               const following=findFollowingGames(state.group,first,excluded);
+              if(wantsFollowing) followingText=followingReply(state,first,excluded);
               output={games:following.slice(0,3),note:kitaRuleNotice+' Nur die zurückgegebenen Verbindungen verwenden; keine weiteren erfinden. Bei leerer Liste keine passende Verbindung bestätigt.'};
             }else if(call.name==='read_game'){
               const permitted=new Set([...state.resultIds,...(state.plans.at(-1)?.timeline.map(t=>t.gameId)??[])]);
@@ -128,10 +131,16 @@ export async function POST(request:Request){
         // A validated plan is confirmed by the app below. A further model response
         // would be discarded, add latency and could fail an already valid change.
         // Finish only after every tool call in this response has its output.
-        if(changed)break;
+        if(changed||followingText)break;
       }
       const messages=turn.filter(i=>i.type==='message'&&i.role==='assistant');
       let text=messages.flatMap(i=>Array.isArray(i.content)?i.content.filter((c:Record<string,unknown>)=>c.type==='output_text').map((c:Record<string,unknown>)=>String(c.text)):[]).join('\n');
+      if(wantsFollowing) {
+        text=followingText??followingReply(state,reference,excluded);
+        kind='explanation';
+        turn.push({type:'message',role:'assistant',content:[{type:'output_text',text}]});
+        emit({type:'delta',text});
+      }
       if(action.kind==='plan') {
         // Completion invariant: never return successful search-only output for a plan request.
         // A local fallback is permitted only after the current context was searched.

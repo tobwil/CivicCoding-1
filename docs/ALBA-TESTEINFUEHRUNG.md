@@ -43,6 +43,12 @@ Der Standardablauf ist derzeit: Spielideen finden → ein Spiel auswählen → T
 
 Freie Einheiten sind auf ausdrücklichen Wunsch vorgesehen, etwa mit „Mach daraus eine freie Einheit für 30 Minuten.“ Sie bestehen aktuell aus drei Abschnitten. Deren Reihenfolge und Zeitaufteilung sind eigene Planungsvorschläge, keine bereits vollständig umgesetzte ALBA-Einheitensystematik.
 
+**Direkter Weg:** Nach dem Einstieg steht im Chat und im noch leeren Einheitenbereich „20-Minuten-Einheit erstellen“ – beziehungsweise eure aktuell eingestellte Dauer. Der Button übernimmt die Gruppenbedingungen. Eine vorherige Spielauswahl oder Themenwelt ist nicht notwendig; der Chat bleibt frei bedienbar. „Neue Einheit“ leert dagegen einen bereits vorhandenen Plan.
+
+„Folgespiel finden“ prüft eine eng definierte Persona-Kette und ist nicht gleichbedeutend mit „Einheit erstellen“. Gibt es keine bestätigte Verbindung, nennt der Coach die Grenzen und bietet bei ausreichender Auswahl die freie Zusammenstellung an. Das ausgewählte Einzelspiel wird dabei nicht automatisch übernommen; andere Materialien können nötig sein. Harte Eignungsregeln werden nicht gelockert.
+
+Für den Abschluss bevorzugt die regelbasierte Erstplanung Spiele mit Ruhe-/Entspannungshinweisen im Originaltitel oder Kurztext. Das ist eine weiche Präferenz, keine pädagogische Freigabe. Fehlt ein solcher Beleg im vorgeschlagenen Abschluss, wird das kenntlich gemacht. Eine gezielte Planänderung erhält weiterhin die übrigen Abschnitte.
+
 **Korrigiert:** „Plane eine Sportstunde“ und Einheitenwünsche mit zusätzlicher Themenwelt werden als Planauftrag erkannt. Ein erkannter Planauftrag endet nach abgeschlossener Verarbeitung mit einer geprüften Einheit oder einer konkreten Rückfrage. Liefert die KI nach einer erfolgreichen Suche keinen Plan, versucht die Anwendung einen gesondert geprüften regelbasierten Vorschlag. Dieser wird entsprechend bezeichnet. Technische Ausfälle werden weiterhin als Fehler angezeigt.
 
 Sind weniger als drei geeignete unterschiedliche Spiele verfügbar, kann die aktuelle freie Planung keine Einheit erstellen. Die Rückfrage nennt die Verfügbarkeit und geprüfte Ausschlussgründe. Fachliche Regeln werden dafür nicht gelockert. Auf dem Handy öffnet sich nach erfolgreicher Erstellung automatisch der Tab „Einheit“.

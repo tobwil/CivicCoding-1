@@ -69,6 +69,22 @@ export function findFollowingGames(group: Group, first: CatalogGame, excluded: s
   if (!first.kita || excluded.includes(first.id) || !catalogMatch(first,group.choice).eligible || materialConflict(first,group)) return [];
   return findGames(group,'',excluded,g => !!g.kita && followsKita(first.kita!,g.kita,group.choice.profession));
 }
+export function unitAction(state: Session) {
+  const duration=state.group.choice.duration;
+  return {label:`${duration}-Minuten-Einheit erstellen`,prompt:`Erstelle eine freie Einheit für ${duration} Minuten mit unseren aktuellen Gruppenangaben.`};
+}
+export function followingReply(state: Session, first: CatalogGame | undefined, excluded: string[] = []) {
+  if(!first) return 'Bitte zuerst ein Spiel aus den angezeigten Treffern auswählen.';
+  const following=findFollowingGames(state.group,first,excluded);
+  if(following.length) return 'Passende Folgespiele nach den umgesetzten Persona-, Material- und Kategorienregeln:\n'+following.slice(0,3).map(g=>g.title).join('\n')+'\nDas sind einzelne Anschlussvorschläge, noch keine Einheit.';
+  const available=findGames(state.group,'',excluded).length;
+  return `Für „${first.title}“ ist unter euren aktuellen Bedingungen kein Folgespiel nach der engen Persona-Kettenregel bestätigt. Dafür müssen unter anderem Kategorieübergang, vollständige Materialliste und Spielfamilie passen. Das bedeutet nicht, dass keine freie Einheit möglich ist.\n`+
+    (available>=3?`Du kannst stattdessen über „${unitAction(state).label}“ eine freie Zusammenstellung aus geeigneten Spielen anfordern. Dabei können andere Materialien nötig sein; die bisherigen Gruppenbedingungen bleiben verbindlich. Das ausgewählte Spiel wird nicht automatisch übernommen.`:planAvailabilityMessage(state,excluded));
+}
+// A source-backed preference, not a pedagogical classification or exclusion rule.
+export function closingEvidence(game: CatalogGame) {
+  return /ruhig(?:en|er|es)? ausklang|entspann|zur ruhe|ruhiges spiel|schleichspiel/.test(normalize(game.title+' '+(game.kita?.teaser??'')));
+}
 export function actionFor(text: string, state?: Session): { kind: 'explanation' | 'results' | 'plan'; slot: number | null } {
   const t = normalize(text);
   // Questions and negations must not create a plan just because they name one.
@@ -131,7 +147,11 @@ export function makePlan(state: Session, text: string, excluded: string[] = [], 
     const replacement = (selected ? selected.map(id => byId.get(id)) : candidates).find(g => g && g.id !== old.timeline[action.slot!].gameId && (repeat || !keep.some(k => family(k) === family(g))));
     if (!replacement) throw Error('Keine andere geeignete Spielfamilie für diesen Abschnitt gefunden. Der bisherige Plan bleibt erhalten. Möchtest du die vorhandenen Einzelspiele prüfen?');
     games = old.timeline.map((t,i) => i === action.slot ? replacement : byId.get(t.gameId)!);
-  } else games = selected ? selected.map(id => byId.get(id)!) : candidates.slice(0,3);
+  } else if(selected) games=selected.map(id=>byId.get(id)!);
+  else {
+    const closing=candidates.find(closingEvidence);
+    games=closing?[...candidates.filter(g=>family(g)!==family(closing)).slice(0,2),closing]:candidates.slice(0,3);
+  }
   const selectedInvalid=selected?.some(id=>!candidates.some(c=>c.id===id))??false;
   const gameInvalid=games.some(g=>!g||excluded.includes(g.id)||!catalogMatch(g,state.group.choice).eligible||materialConflict(g,state.group));
   if (games.length !== 3 || selectedInvalid || gameInvalid || !repeat && uniqueFamilies(games).length !== 3) {
@@ -140,7 +160,7 @@ export function makePlan(state: Session, text: string, excluded: string[] = [], 
     throw Error(invalidTitles.length?'Diese Spiele passen nicht zu den aktuellen Bedingungen: '+invalidTitles.join(', ')+'. Der bisherige Plan bleibt erhalten. Soll die ganze Einheit an die neuen Angaben angepasst werden?':'Die Spielauswahl ist ungültig oder enthält nicht erlaubte Wiederholungen. Bitte drei geeignete unterschiedliche Spiele wählen.');
   }
   const times = old && action.slot !== null ? old.timeline.map(t => t.duration) : phaseDurations(state.group.choice.duration);
-  return { headline: `${times.reduce((a,b)=>a+b,0)} Minuten gemeinsam in Bewegung`, read:'Die Reihenfolge und Zeitaufteilung sind Planungsvorschläge, keine ALBA-Originalvorgaben.', coachNote:repeat ? 'Wiederholung zur Vertiefung ausdrücklich gewünscht.' : 'Kurze Erklärungen, viel aktive Zeit und gemeinsame Reflexion.', context: { ...state.group.choice, duration: times.reduce((a,b)=>a+b,0) }, warnings: catalogWarnings(state.group.choice), timeline:games.map((g,i) => old && action.slot !== null && i !== action.slot ? old.timeline[i] : { phase:phases[i],duration:times[i],title:g.title,gameId:g.id,reason:g.description ?? g.audience,tip:'Eigener Coaching-Vorschlag: kurz vormachen, beobachten und die Kinder an Anpassungen beteiligen.' }) };
+  return { headline: `${times.reduce((a,b)=>a+b,0)} Minuten gemeinsam in Bewegung`, read:'Die Reihenfolge und Zeitaufteilung sind Planungsvorschläge, keine ALBA-Originalvorgaben.', coachNote:repeat ? 'Wiederholung zur Vertiefung ausdrücklich gewünscht.' : 'Kurze Erklärungen, viel aktive Zeit und gemeinsame Reflexion.', context: { ...state.group.choice, duration: times.reduce((a,b)=>a+b,0) }, warnings: [...catalogWarnings(state.group.choice),...(!closingEvidence(games[2])?['Für den Abschluss ist ein ruhiger Charakter anhand von Titel und Kurztext nicht belegt. Bitte den Ablauf und die Reihenfolge für eure Gruppe prüfen.']:[])], timeline:games.map((g,i) => old && action.slot !== null && i !== action.slot ? old.timeline[i] : { phase:phases[i],duration:times[i],title:g.title,gameId:g.id,reason:g.description ?? g.audience,tip:'Eigener Coaching-Vorschlag: kurz vormachen, beobachten und die Kinder an Anpassungen beteiligen.' }) };
 }
 export function planCheck(state: Session) {
   const plan = state.plans.at(-1);
@@ -157,8 +177,7 @@ export function localTurn(state: Session, text: string, excluded: string[] = [])
   if (action.kind === 'explanation') {
     const game = gameReference(text,next);
     if (/folgespiel|nachstes spiel/.test(normalize(text))) {
-      const following = game ? findFollowingGames(next.group,game,excluded) : [];
-      reply = following.length ? 'Passende Folgespiele nach den umgesetzten Persona-, Material- und Kategorienregeln: ' + following.slice(0,3).map(g=>g.title).join('; ') : 'Kein passendes Folgespiel nach den umgesetzten Persona-, Material- und Kategorienregeln gefunden. Bitte Gruppendaten und Material prüfen; AP/AR bleiben ungeklärt.';
+      reply = followingReply(next,game,excluded);
     } else if (/ich wahle spiel/.test(normalize(text))) {
       reply = game ? game.title + ' ist ausgewählt. In welcher Themenwelt möchtet ihr spielen? Ohne API-Key kann ich den Tabellen-Ablauf zeigen, aber keine KI-Bewegungsgeschichte erstellen.' : 'Bitte zuerst ein angezeigtes Spiel auswählen.';
     } else {
