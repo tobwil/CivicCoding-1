@@ -70,7 +70,10 @@ Der Import verändert die Originaldatei nicht. Nach Änderungen Kopfzeilen, Zuor
 
 ## Hosting und bisherige Aufnahmen
 
-Dieser Branch ist ein separater Teststand; die bestehenden Sites- und Netlify-Deployments wurden für diesen Auftrag nicht aktualisiert.
+Dieser Branch ist als separate, passwortgeschützte Testvorschau verfügbar. Die produktive Website und der bisherige Sites-Prototyp bleiben unverändert.
+
+- [KITA-Testvorschau](https://kita-personas-test--albathek-match.netlify.app) · Benutzername `alba`, bisheriges separat geteiltes Passwort.
+- [Feature-Branch auf GitHub](https://github.com/tobwil/CivicCoding-1/tree/codex/kita-personas-alba)
 
 - [Bisheriger Sites-Prototyp](https://albathek-match.dahoooo.chatgpt.site)
 - [Bisheriger geschützter Netlify-Prototyp](https://albathek-match.netlify.app)

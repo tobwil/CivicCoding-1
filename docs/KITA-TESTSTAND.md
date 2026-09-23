@@ -63,4 +63,10 @@ Am 23.09.2026 wurde ausdrücklich bestätigt: eindeutige Regeln umsetzen, unklar
 
 30 automatisierte Tests decken Datenabgrenzung, vier Personas, Alter und Gruppen-/Ortsgrenzen, unbekannte Werte, Materialfilter, freie Planversionen, Erklärungsfragen, Spielauswahl und Themenwelt sowie Quellenbindung ab. API-Tests verwenden kontrollierte Responses-Antworten, keine echten API-Aufrufe. Die Netlify-Zugangsschutztests bleiben erhalten.
 
-Zusätzlich geprüft: TypeScript der Next-Anwendung, ESLint, Produktionsbuild und erfolgreicher lokaler Seitenaufruf. Keine Veröffentlichung, keine neue visuelle Browser-Abnahme und keine Messung realer OpenAI-Antwortzeiten für diesen Stand. Historische Screenshots im Repository dokumentieren den früheren Gesamtkatalog, nicht diesen KITA-Stand.
+Zusätzlich geprüft: TypeScript der Next-Anwendung, ESLint, Produktionsbuild und erfolgreicher lokaler Seitenaufruf. Keine neue visuelle Browser-Abnahme und keine Messung realer OpenAI-Antwortzeiten für diesen Stand. Historische Screenshots im Repository dokumentieren den früheren Gesamtkatalog, nicht diesen KITA-Stand.
+
+## Separate Testvorschau
+
+Auf anschließenden ausdrücklichen Wunsch wurde der Feature-Branch am 23.09.2026 nach GitHub gepusht und als geschützter Netlify-Entwurf bereitgestellt: [KITA-Personas testen](https://kita-personas-test--albathek-match.netlify.app). Die produktive Website bleibt unverändert.
+
+Bereitgestellter App-Commit: `90411fabc86d5c6c69ea519438cf742a2c3381a7`. Netlify-Deploy: `6ab375b14164343c78500495`, Kontext `deploy-preview`, Next.js Runtime 5.16.0. Zugang mit dem bisherigen Benutzernamen `alba` und dem separat geteilten Passwort. Keine Zugangsdaten im Repository.
