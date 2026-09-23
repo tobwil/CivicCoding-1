@@ -4,6 +4,8 @@
 
 ## Umgesetzte Korrekturen
 
+Weitere reale Gesprächsprüfungen und daraufhin korrigierte Referenz-/Materialfehler: [Live-Nachtest](LIVE-KI-NACHTEST-2026-09-23.md).
+
 - Sport-/Bewegungs-/Trainingsstunde werden als Einheitenwunsch erkannt; zusätzliche Themenwünsche verdrängen einen Planauftrag nicht.
 - Erklärungsfragen, Negation und reine Zeitangaben bleiben ohne Planänderung.
 - Nach der Suche wird bei Planaufträgen das Planwerkzeug ausdrücklich angefordert. Vor Abschluss gilt: validierter Plan oder konkrete Rückfrage. Ein separater regelbasierter Rückfall ist nur nach erfolgreicher Suche der aktuellen Bedingungen zulässig.

@@ -28,10 +28,12 @@ export function understand(text: string, previous: Group): Group {
   const g = structuredClone(previous), t = normalize(text);
   g.choice = parseSituation(text, g.choice);
   // The explicit profile owns the persona; mentioning Kita must not silently change it.
-  const materialWish = t.match(/(?:spiele?\s+mit|material\s*:\s*|mochten\s+)(reifen|balle|ball|hutchen|seile?|matten|banke|luftballons|papprollen)\b/);
+  const materialWish = t.match(/(?:spiele?\s+mit\s+|material\s*:\s*|mochten\s+)(reifen|balle|ball|hutchen|seile?|matten|banke|luftballons|papprollen)\b/);
   if (materialWish) {
     g.choice.material = ({balle:'Ball',hutchen:'Hütchen',banke:'Bänke'} as Record<string,string>)[materialWish[1]] ?? materialWish[1][0].toUpperCase()+materialWish[1].slice(1);
     g.noMaterial = false;
+    const normalizedMaterial = normalize(g.choice.material);
+    g.excludedMaterials = g.excludedMaterials.filter(x => !normalizedMaterial.includes(x));
   }
   if (/fussball/.test(t) && !g.interests.includes('Fußball')) g.interests.push('Fußball');
   if (/basketball/.test(t) && !g.interests.includes('Basketball')) g.interests.push('Basketball');
@@ -66,7 +68,7 @@ export function findGames(group: Group, query = '', excluded: string[] = []) {
 export function actionFor(text: string, state?: Session): { kind: 'explanation' | 'results' | 'plan'; slot: number | null } {
   const t = normalize(text);
   // Questions and negations must not create a plan just because they name one.
-  if (/^(?:bitte\s+)?(?:warum|wieso|weshalb|erklar(?:e)?|erlautere|wie funktioniert|wie geht|wie ist|wie kann|was bedeutet|was ist)\b/.test(t) || /\b(?:einheit|sportstunde|trainingsplan)\b.*\b(?:erklaren|erlautern)\b/.test(t)) return {kind:'explanation',slot:null};
+  if (/^(?:bitte\s+)?(?:warum|wieso|weshalb|erklar(?:e)?|erlautere|wie funktioniert|wie geht|wie ist|wie kann|wie viele?|was bedeutet|was ist)\b/.test(t) || /\b(?:einheit|sportstunde|trainingsplan)\b.*\b(?:erklaren|erlautern)\b/.test(t)) return {kind:'explanation',slot:null};
   if (/\b(?:keine[nr]?|ohne)\s+(?:neue[nr]?\s+|ganze[nr]?\s+)?(?:einheit|sportstunde|bewegungsstunde|trainingsstunde|trainingsplan|plan)\b/.test(t)) return {kind:'results',slot:null};
   const numbered = t.match(/spiel\s*([123])/);
   const slot = numbered ? Number(numbered[1])-1 : /einstieg|ankommen/.test(t) ? 0 : /hauptteil|action/.test(t) ? 1 : /abschluss|landen/.test(t) ? 2 : null;
@@ -107,8 +109,11 @@ export function planConfirmation(state:Session,text:string,local=false):string {
     (/themenwelt|geschichte/.test(normalize(text))?'\nDer Plan ist erstellt. Eine thematische Geschichte ist damit noch nicht ausgearbeitet; dafür bitte ein Spiel auswählen und die Themenwelt im nächsten Schritt vertiefen.':'');
 }
 export function gameReference(text: string, state: Session) {
-  const n = normalize(text).match(/spiel\s*([1-6])/);
-  const ids = /ich wahle spiel/.test(normalize(text)) ? state.resultIds : state.plans.at(-1)?.timeline.map(t => t.gameId) ?? state.resultIds;
+  const t = normalize(text), n = t.match(/spiel\s*([1-6])/);
+  const latestSelection = [...state.messages].reverse().find(m=>m.role==='assistant'&&(m.kind==='results'||m.kind==='plan'));
+  const fromResults = /ich wahle spiel|treffer|sammlung|suchergebnis|spielideen/.test(t)
+    || !/einheit|plan|hauptteil|einstieg|abschluss/.test(t) && latestSelection?.kind==='results';
+  const ids = fromResults ? state.resultIds : state.plans.at(-1)?.timeline.map(t => t.gameId) ?? state.resultIds;
   return byId.get(n ? ids[Number(n[1])-1] : state.selectedGameId ?? ids[0]);
 }
 export function makePlan(state: Session, text: string, excluded: string[] = [], selected?: string[]): Plan {
@@ -137,7 +142,8 @@ export function planCheck(state: Session) {
   const plan = state.plans.at(-1);
   if (!plan) return [];
   const invalid = plan.timeline.filter(t => { const g = byId.get(t.gameId)!; return !catalogMatch(g,{...state.group.choice,material:state.group.choice.material}).eligible || materialConflict(g,state.group); });
-  return [...(invalid.length ? ['Der bestehende Plan muss an die neuen Bedingungen angepasst werden: '+invalid.map(t=>t.title).join(', ')] : []), ...(plan.context.children !== state.group.choice.children || plan.context.age !== state.group.choice.age ? ['Gruppendaten wurden geändert. Bitte die Eignung der bestehenden Einheit erneut anhand der Originalanleitungen prüfen.'] : [])];
+  const total = plan.timeline.reduce((sum, item) => sum + item.duration, 0);
+  return [...(invalid.length ? ['Der bestehende Plan muss an die neuen Bedingungen angepasst werden: '+invalid.map(t=>t.title).join(', ')] : []), ...(total !== state.group.choice.duration ? [`Die bestehende Einheit dauert ${total} Minuten; aktuell sind ${state.group.choice.duration} Minuten vorgesehen. Bitte die Einheit ausdrücklich an die neue Zeit anpassen lassen.`] : []), ...(plan.context.children !== state.group.choice.children || plan.context.age !== state.group.choice.age ? ['Gruppendaten wurden geändert. Bitte die Eignung der bestehenden Einheit erneut anhand der Originalanleitungen prüfen.'] : [])];
 }
 export function localTurn(state: Session, text: string, excluded: string[] = []): Session {
   const next = structuredClone(state); next.group = understand(text,next.group);

@@ -31,7 +31,7 @@ test('explicit sport lesson and thematic plan requests create units locally',()=
   }
 });
 test('duration, explanation, negation and story alone never trigger a plan',()=>{
-  for(const prompt of ['10 Kinder, 5 Jahre, 30 Minuten in der Sporthalle.','Warum passt diese Einheit?','Erkläre den Aufbau der Einheit.','Kannst du die Sportstunde erklären?','Bitte keine Einheit, nur einzelne Spiele.','Wir suchen ruhige Spiele.','Erstelle eine Bewegungsgeschichte in der Themenwelt Waldtiere.']){
+  for(const prompt of ['10 Kinder, 5 Jahre, 30 Minuten in der Sporthalle.','Warum passt diese Einheit?','Erkläre den Aufbau der Einheit.','Wie viele Reifen brauchen wir für Spiel 2?','Kannst du die Sportstunde erklären?','Bitte keine Einheit, nur einzelne Spiele.','Wir suchen ruhige Spiele.','Erstelle eine Bewegungsgeschichte in der Themenwelt Waldtiere.']){
     assert.notEqual(actionFor(prompt).kind,'plan',prompt);
     assert.equal(localTurn(newSession(),prompt).plans.length,0,prompt);
   }
@@ -54,9 +54,8 @@ test('API forces proposal after search and returns only a verified confirmation'
   const out=await simulated('Plane eine Sportstunde für 30 Minuten.',s,[
     [call('search_games',search,'s')],
     [call('propose_plan',{gameIds:ids},'p')],
-    [message('Bitte wähle erst ein Einzelspiel aus.')],
   ]);
-  assert.deepEqual(out.bodies.map(b=>b.tool_choice),[{type:'function',name:'search_games'},{type:'function',name:'propose_plan'},'none']);
+  assert.deepEqual(out.bodies.map(b=>b.tool_choice),[{type:'function',name:'search_games'},{type:'function',name:'propose_plan'}]);
   assert.equal(out.state.plans.length,1);
   assert.equal(out.state.messages.at(-1).kind,'plan');
   assert.match(out.state.messages.at(-1).text,/freie Einheit für 30 Minuten ist bereit/);

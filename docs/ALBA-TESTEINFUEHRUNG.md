@@ -49,6 +49,8 @@ Sind weniger als drei geeignete unterschiedliche Spiele verfügbar, kann die akt
 
 Eine gewünschte Themenwelt verhindert die Planerstellung nicht. Eine dazu passende ausführliche Bewegungsgeschichte ist damit aber noch nicht ausgearbeitet: Dafür anschließend ein Spiel auswählen und die Themenwelt vertiefen.
 
+Wenn ihr parallel Suchtreffer und eine Einheit vorliegen habt, könnt ihr eindeutig nach „Spiel 2 aus den Treffern“ oder „Spiel 2 der Einheit“ fragen. Bei geänderter Zeit weist die bestehende Einheit auf eine abweichende Dauer hin; mit „Verkürze die Einheit auf 15 Minuten, behalte die Spiele bei“ könnt ihr die Anpassung ausdrücklich beauftragen.
+
 ## Grenzen des Teststands
 
 - Widersprüchliche oder nicht eindeutig zugeordnete Regeln aus den Unterlagen bleiben nach Rücksprache deaktiviert. Das betrifft insbesondere einige Spielketten und die Regel für genau 30 Minuten.

@@ -2,6 +2,10 @@
 
 Stand: 23.09.2026 (Juli-Verlauf mit September-Fortsetzung)
 
+## Erneuter Test mit echter KI · 23.09.2026
+
+Der Nutzer stellte den realen KI-Zugang bereit und bat um erneute Tests sowie Fehlerbehebung und Optimierung. Nach Entsperren des Browsers wurden zehn weitere Gesprächsanfragen geprüft. Korrigiert wurden Materialwünsche und alte Ausschlüsse, fehlende Dauerwarnungen sowie die Verwechslung von Treffer- und Planreferenzen. Mengenfragen lesen die Originaldaten; der unnötige zusätzliche Modellaufruf nach validierten Plänen entfällt. 48 automatisierte Tests ergänzen die dokumentierten Live-Prüfungen. [Ergebnisse und Grenzen](LIVE-KI-NACHTEST-2026-09-23.md).
+
 ## Einheiten-Aufträge zuverlässig abschließen · 23.09.2026
 
 Der Nutzer bat um eine Testeinführung für ALBA und eine Untersuchung fehlender Einheiten. Nach der Diagnose bestätigte er die Behebung mit „ja bitte fehler beheben“. Korrigiert wurden die Erkennung von Sportstunden und kombinierten Themen-/Einheitenwünschen, die verbindliche Planprüfung nach der KI-Suche, konkrete Rückfragen bei nicht erfüllbaren Bedingungen sowie der mobile Wechsel zum neuen Plan. Fachliche ALBA-Regeln bleiben unverändert. Details: [Diagnose und Korrekturen](DIAGNOSE-EINHEITEN.md).

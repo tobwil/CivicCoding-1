@@ -28,6 +28,28 @@ test('explanation references item 2 and never changes the plan',()=>{
   s=localTurn(s,'Erklär mir den Aufbau von Spiel 2.');assert.deepEqual(s.plans,before);
   assert.throws(()=>makePlan(s,'Warum Spiel 2?'),/Erklärung/);
 });
+test('new search references its own games; explicit unit references keep pointing at the plan',()=>{
+  let s=localTurn(newSession(),'Eine Einheit für 30 Minuten');
+  const planId=s.plans.at(-1).timeline[1].gameId;
+  s=localTurn(s,'Zeig Spiele mit Reifen');
+  assert.equal(gameReference('Erklär Spiel 2 aus diesen Treffern',s).id,s.resultIds[1]);
+  assert.equal(gameReference('Erklär Spiel 2',s).id,s.resultIds[1]);
+  assert.equal(gameReference('Erklär Spiel 2 der Einheit',s).id,planId);
+  assert.equal(gameReference('Ich wähle Spiel 2',s).id,s.resultIds[1]);
+});
+test('API permits reading a newly displayed result when an older unit also exists',async()=>{
+  let state=localTurn(newSession(),'Einheit für 30 Minuten');
+  state=localTurn(state,'Zeig Spiele mit Reifen');
+  const gameId=state.resultIds[1], saved=globalThis.fetch;let count=0;
+  try {
+    globalThis.fetch=async()=>++count===1?response([call('read_game',{gameId})]):response([message('Hier ist die Originalanleitung.')]);
+    const out=await events(await POST(req(state,'Erklär den Aufbau von Spiel 2 aus den Treffern.')));
+    const after=out.find(e=>e.type==='done').state;
+    const output=after.turns.at(-1).find(i=>i.type==='function_call_output');
+    assert.equal(JSON.parse(output.output).title,catalog.find(g=>g.id===gameId).title);
+    assert.deepEqual(after.plans,state.plans);
+  } finally {globalThis.fetch=saved;}
+});
 test('new child counts update context and trigger existing plan recheck',()=>{
   let s=localTurn(newSession(),'Eine Einheit für 30 Minuten');s=localTurn(s,'Jetzt sind es 18 Kinder');
   assert.equal(s.group.choice.children,18);assert.ok(planCheck(s).length);
@@ -38,6 +60,21 @@ test('missing material is unknown; explicit contradictions are excluded',()=>{
   assert.equal(materialConflict({materials:'Bälle',description:'Jedes Kind bekommt einen Ball.'},g),true);
   assert.equal(materialConflict({materials:'',description:''},g),false);
   assert.equal(findGames(understand('ohne Reifen',g)).some(x=>/reifen/i.test(x.materials)),false);
+});
+test('explicit material search supersedes an older exclusion and recognizes ordinary spacing',()=>{
+  const before=understand('ohne Reifen',newSession().group);
+  const after=understand('Wir haben jetzt doch Reifen. Zeig Spiele mit Reifen.',before);
+  assert.equal(after.choice.material,'Reifen');
+  assert.ok(!after.excludedMaterials.includes('reifen'));
+  const games=findGames(after);
+  assert.ok(games.length);
+  assert.ok(games.every(g=>/reifen/i.test(g.materials)));
+});
+test('a changed time warns about the retained plan without silently modifying it',()=>{
+  const before=localTurn(newSession(),'Einheit für 30 Minuten');
+  const after=localTurn(before,'Wir haben doch nur 15 Minuten.');
+  assert.deepEqual(after.plans,before.plans);
+  assert.ok(planCheck(after).some(w=>/30 Minuten.*15 Minuten/.test(w)));
 });
 test('default plan deduplicates families; explicit repetition is allowed',()=>{
   const s=newSession(),ids=findGames(s.group).slice(0,3).map(g=>g.id);
