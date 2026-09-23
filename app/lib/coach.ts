@@ -65,13 +65,46 @@ export function findGames(group: Group, query = '', excluded: string[] = []) {
 }
 export function actionFor(text: string, state?: Session): { kind: 'explanation' | 'results' | 'plan'; slot: number | null } {
   const t = normalize(text);
-  if (state?.selectedGameId && /themenwelt/i.test(state.messages.at(-1)?.text ?? '') && t.split(/\s+/).length <= 5 && !/\d|kinder|ball|material|spiel|einheit|plan|warum|erklar|sporthalle|raum|draussen|andere/.test(t)) return {kind:'explanation',slot:null};
-  if (/ich wahle spiel|themenwelt|bewegungsgeschichte|geschichte|folgespiel|nachstes spiel/.test(t)) return { kind:'explanation',slot:null };
-  if (/^(warum|wieso|weshalb|erklar|wie funktioniert|wie geht|wie ist|was bedeutet)|\baufbau\b/.test(t)) return { kind:'explanation',slot:null };
-  const change = /ersetz|tausch|andere[srn]? spiel|ruhiger|zu schwierig/.test(t);
+  // Questions and negations must not create a plan just because they name one.
+  if (/^(?:bitte\s+)?(?:warum|wieso|weshalb|erklar(?:e)?|erlautere|wie funktioniert|wie geht|wie ist|wie kann|was bedeutet|was ist)\b/.test(t) || /\b(?:einheit|sportstunde|trainingsplan)\b.*\b(?:erklaren|erlautern)\b/.test(t)) return {kind:'explanation',slot:null};
+  if (/\b(?:keine[nr]?|ohne)\s+(?:neue[nr]?\s+|ganze[nr]?\s+)?(?:einheit|sportstunde|bewegungsstunde|trainingsstunde|trainingsplan|plan)\b/.test(t)) return {kind:'results',slot:null};
   const numbered = t.match(/spiel\s*([123])/);
   const slot = numbered ? Number(numbered[1])-1 : /einstieg|ankommen/.test(t) ? 0 : /hauptteil|action/.test(t) ? 1 : /abschluss|landen/.test(t) ? 2 : null;
-  return { kind: change || /einheit|trainingsplan|plan erstellen|plan bauen|wiederhol|vertief/.test(t) ? 'plan' : 'results', slot: change ? slot : null };
+  const change = /ersetz|tausch/.test(t) || !!state?.plans.length && /andere[srn]? spiel|ruhiger|zu schwierig/.test(t);
+  // An explicit plan request wins over an additional theme/story wish.
+  if (change || /\b(?:einheit|trainingsplan|sportstunde|bewegungsstunde|trainingsstunde|stundenplan)\b|plan erstellen|plan bauen|wiederhol|vertief/.test(t)) return {kind:'plan',slot:change?slot:null};
+  if (state?.selectedGameId && /themenwelt/i.test(state.messages.at(-1)?.text ?? '') && t.split(/\s+/).length <= 5 && !/\d|kinder|ball|material|spiel|einheit|plan|warum|erklar|sporthalle|raum|draussen|andere/.test(t)) return {kind:'explanation',slot:null};
+  if (/ich wahle spiel|themenwelt|bewegungsgeschichte|geschichte|folgespiel|nachstes spiel/.test(t)) return { kind:'explanation',slot:null };
+  return {kind:/\baufbau\b/.test(t)?'explanation':'results',slot:null};
+}
+export function planAvailabilityMessage(state:Session, excluded:string[]=[]):string {
+  const group=state.group, count=findGames(group,'',excluded).length;
+  const notices=kitaNotices(group.choice);
+  if(notices.length) return 'Noch keine Einheit: '+notices.join(' ')+' Welche der genannten Rahmenbedingungen treffen für euer Angebot tatsächlich zu?';
+  const reasons=new Map<string,number>();
+  for(const game of catalog) {
+    if(excluded.includes(game.id)) continue;
+    for(const reason of catalogMatch(game,group.choice).excluded) reasons.set(reason,(reasons.get(reason)??0)+1);
+    if(materialConflict(game,group)) {
+      const reason='Dokumentierte Materialanforderungen widersprechen euren Angaben.';
+      reasons.set(reason,(reasons.get(reason)??0)+1);
+    }
+  }
+  const common=[...reasons].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([reason,n])=>reason+' ('+n+' Einträge)');
+  return 'Für eine freie Einheit benötige ich drei geeignete, unterschiedliche Spielfamilien. Aktuell verfügbar: '+count+'.'+
+    (common.length?' Häufige Ausschlussgründe in der Tabelle: '+common.join(' '):'')+
+    (excluded.length?' '+excluded.length+' Einträge sind für heute ausgeblendet.':'')+
+    ' Möchtest du zunächst die verfügbaren Einzelspiele ansehen oder eine tatsächlich abweichende Gruppenangabe korrigieren?';
+}
+export function planConfirmation(state:Session,text:string,local=false):string {
+  const plan=state.plans.at(-1)!;
+  const action=actionFor(text,state);
+  const summary=action.slot===null
+    ? 'Deine '+(local?'regelbasiert erstellte ':'')+'freie Einheit für '+plan.timeline.reduce((n,t)=>n+t.duration,0)+' Minuten ist bereit.'
+    : ['Einstieg','Hauptteil','Abschluss'][action.slot]+' ersetzt; die übrigen Abschnitte und Zeiten bleiben unverändert.';
+  return summary+'\n'+plan.timeline.map((t,i)=>(i+1)+'. '+t.phase+': '+t.title+' ('+t.duration+' Min.)').join('\n')+
+    '\nDie Einheit ist ein eigener Planungsvorschlag, keine freigegebene ALBA-Einheitensystematik. Materialmengen und Originalanleitungen bitte vor der Durchführung prüfen.'+
+    (/themenwelt|geschichte/.test(normalize(text))?'\nDer Plan ist erstellt. Eine thematische Geschichte ist damit noch nicht ausgearbeitet; dafür bitte ein Spiel auswählen und die Themenwelt im nächsten Schritt vertiefen.':'');
 }
 export function gameReference(text: string, state: Session) {
   const n = normalize(text).match(/spiel\s*([1-6])/);
@@ -79,7 +112,7 @@ export function gameReference(text: string, state: Session) {
   return byId.get(n ? ids[Number(n[1])-1] : state.selectedGameId ?? ids[0]);
 }
 export function makePlan(state: Session, text: string, excluded: string[] = [], selected?: string[]): Plan {
-  const action = actionFor(text), old = state.plans.at(-1);
+  const action = actionFor(text,state), old = state.plans.at(-1);
   if (action.kind !== 'plan') throw Error('Eine Erklärung darf den Plan nicht verändern.');
   const candidates = findGames(state.group, text, excluded);
   const repeat = /wiederhol|vertief/.test(normalize(text));
@@ -87,12 +120,16 @@ export function makePlan(state: Session, text: string, excluded: string[] = [], 
   if (old && action.slot !== null) {
     const keep = old.timeline.filter((_,i) => i !== action.slot).map(t => byId.get(t.gameId)!);
     const replacement = (selected ? selected.map(id => byId.get(id)) : candidates).find(g => g && g.id !== old.timeline[action.slot!].gameId && (repeat || !keep.some(k => family(k) === family(g))));
-    if (!replacement) throw Error('Keine passende Alternative gefunden. Der bisherige Plan bleibt erhalten.');
+    if (!replacement) throw Error('Keine andere geeignete Spielfamilie für diesen Abschnitt gefunden. Der bisherige Plan bleibt erhalten. Möchtest du die vorhandenen Einzelspiele prüfen?');
     games = old.timeline.map((t,i) => i === action.slot ? replacement : byId.get(t.gameId)!);
   } else games = selected ? selected.map(id => byId.get(id)!) : candidates.slice(0,3);
   const selectedInvalid=selected?.some(id=>!candidates.some(c=>c.id===id))??false;
   const gameInvalid=games.some(g=>!g||excluded.includes(g.id)||!catalogMatch(g,state.group.choice).eligible||materialConflict(g,state.group));
-  if (games.length !== 3 || selectedInvalid || gameInvalid || !repeat && uniqueFamilies(games).length !== 3) throw Error('Für diese Bedingungen fehlen drei geprüfte, unterschiedliche Spiele. Bitte die Bedingungen ergänzen.');
+  if (games.length !== 3 || selectedInvalid || gameInvalid || !repeat && uniqueFamilies(games).length !== 3) {
+    if(candidates.length<3) throw Error(planAvailabilityMessage(state,excluded));
+    const invalidTitles=games.filter(g=>g&&!candidates.some(c=>c.id===g.id)).map(g=>g.title);
+    throw Error(invalidTitles.length?'Diese Spiele passen nicht zu den aktuellen Bedingungen: '+invalidTitles.join(', ')+'. Der bisherige Plan bleibt erhalten. Soll die ganze Einheit an die neuen Angaben angepasst werden?':'Die Spielauswahl ist ungültig oder enthält nicht erlaubte Wiederholungen. Bitte drei geeignete unterschiedliche Spiele wählen.');
+  }
   const times = old && action.slot !== null ? old.timeline.map(t => t.duration) : phaseDurations(state.group.choice.duration);
   return { headline: `${times.reduce((a,b)=>a+b,0)} Minuten gemeinsam in Bewegung`, read:'Die Reihenfolge und Zeitaufteilung sind Planungsvorschläge, keine ALBA-Originalvorgaben.', coachNote:repeat ? 'Wiederholung zur Vertiefung ausdrücklich gewünscht.' : 'Kurze Erklärungen, viel aktive Zeit und gemeinsame Reflexion.', context: { ...state.group.choice, duration: times.reduce((a,b)=>a+b,0) }, warnings: catalogWarnings(state.group.choice), timeline:games.map((g,i) => old && action.slot !== null && i !== action.slot ? old.timeline[i] : { phase:phases[i],duration:times[i],title:g.title,gameId:g.id,reason:g.description ?? g.audience,tip:'Eigener Coaching-Vorschlag: kurz vormachen, beobachten und die Kinder an Anpassungen beteiligen.' }) };
 }
@@ -106,7 +143,7 @@ export function localTurn(state: Session, text: string, excluded: string[] = [])
   const next = structuredClone(state); next.group = understand(text,next.group);
   const action = actionFor(text, state);
   if (/ich wahle spiel/i.test(normalize(text))) next.selectedGameId = gameReference(text,next)?.id;
-  let reply: string;
+  let reply: string, kind:Message['kind']=action.kind;
   if (action.kind === 'explanation') {
     const game = gameReference(text,next);
     if (/folgespiel|nachstes spiel/.test(normalize(text))) {
@@ -120,10 +157,10 @@ export function localTurn(state: Session, text: string, excluded: string[] = [])
   } else {
     next.resultIds = findGames(next.group,text,excluded).slice(0,6).map(g=>g.id);
     if (action.kind === 'plan') {
-      try { next.plans.push(makePlan(next,text,excluded)); reply = action.slot !== null ? ['Einstieg','Hauptteil','Abschluss'][action.slot]+' ersetzt; die übrigen Abschnitte und Zeiten bleiben unverändert.' : 'Deine regelbasierte Einheit ist bereit. Bitte Materialmengen und Eignung in den Originalanleitungen prüfen.'; }
-      catch (error) { reply = (error as Error).message; }
+      try { next.plans.push(makePlan(next,text,excluded)); reply=planConfirmation(next,text,true); }
+      catch (error) { reply = (error as Error).message; kind='clarification'; }
     } else reply = `${next.resultIds.length} Spielideen aus der KITA-Content-Tabelle. ${kitaNotices(next.group.choice).join(' ')} ${next.group.balls === 1 ? 'Ein Ball ist übernommen. Bekannte Mengenwidersprüche wurden ausgeschlossen; nicht dokumentierte Mengen bitte im Original prüfen.' : next.group.ballPresent && next.group.balls === null ? 'Ball ist vorhanden. Wie viele Bälle habt ihr?' : 'Wähle ein Spiel aus. Danach kannst du eine Themenwelt angeben.'} Ohne API-Key: regelbasierte Suche, kein KI-Dialog.`;
   }
-  next.messages.push({role:'user',text},{role:'assistant',text:reply,kind:action.kind});
+  next.messages.push({role:'user',text},{role:'assistant',text:reply,kind});
   return next;
 }

@@ -59,7 +59,7 @@ export function CoachAI({ renderAudit, context, excludedIds, favorites=[], toggl
     text=text.trim();if(!text||busy)return;
     setPrompt('');setError('');setAuthError(false);setPreselection(false);setRetry(text);setTab('Chat');setConditionsOpen(false);
     setContextNotice('');
-    if(!apiKey.trim()){try{const next=localTurn(state,text,excludedIds);setState(next);if(next.plans.length>state.plans.length)setWorkTab('Einheit');if(JSON.stringify(next.group)!==JSON.stringify(state.group))setContextNotice('Gruppendaten aus deiner Nachricht übernommen.');}catch(e){setError((e as Error).message);}return;}
+    if(!apiKey.trim()){try{const next=localTurn(state,text,excludedIds);setState(next);if(next.plans.length>state.plans.length){setWorkTab('Einheit');setTab('Einheit');}if(JSON.stringify(next.group)!==JSON.stringify(state.group))setContextNotice('Gruppendaten aus deiner Nachricht übernommen.');}catch(e){setError((e as Error).message);}return;}
     const base=structuredClone(state), current=++requestId.current;
     const visible=structuredClone(base);try{visible.group=understand(text,visible.group);}catch(e){setError((e as Error).message);return;}
     if(actionFor(text,base).kind!=='explanation'){visible.resultIds=findGames(visible.group,text,excludedIds).slice(0,6).map(g=>g.id);setPreselection(true);}
@@ -76,7 +76,7 @@ export function CoachAI({ renderAudit, context, excludedIds, favorites=[], toggl
           if(event.type==='status')setStatus(event.text);
           if(event.type==='delta')setPartial(p=>p+event.text);
           if(event.type==='error'){setAuthError(event.auth===true);throw Error(event.text);}
-          if(event.type==='done'){setPreselection(false);if(JSON.stringify(event.state.group)!==JSON.stringify(base.group))setContextNotice('Gruppendaten aus deiner Nachricht übernommen.');setState(event.state);if(event.state.plans.length>base.plans.length)setWorkTab('Einheit');setPartial('');finished=true;}
+          if(event.type==='done'){setPreselection(false);if(JSON.stringify(event.state.group)!==JSON.stringify(base.group))setContextNotice('Gruppendaten aus deiner Nachricht übernommen.');setState(event.state);if(event.state.plans.length>base.plans.length){setWorkTab('Einheit');setTab('Einheit');}setPartial('');finished=true;}
         }
       }
       if(!finished)throw Error('Antwort unterbrochen. Dein bisheriger Plan bleibt erhalten.');

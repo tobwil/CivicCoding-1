@@ -2,6 +2,10 @@
 
 Stand: 23.09.2026 (Juli-Verlauf mit September-Fortsetzung)
 
+## Einheiten-Aufträge zuverlässig abschließen · 23.09.2026
+
+Der Nutzer bat um eine Testeinführung für ALBA und eine Untersuchung fehlender Einheiten. Nach der Diagnose bestätigte er die Behebung mit „ja bitte fehler beheben“. Korrigiert wurden die Erkennung von Sportstunden und kombinierten Themen-/Einheitenwünschen, die verbindliche Planprüfung nach der KI-Suche, konkrete Rückfragen bei nicht erfüllbaren Bedingungen sowie der mobile Wechsel zum neuen Plan. Fachliche ALBA-Regeln bleiben unverändert. Details: [Diagnose und Korrekturen](DIAGNOSE-EINHEITEN.md).
+
 ## Coach als zentrale Testoberfläche · 23.09.2026
 
 Der Nutzer beanstandete den unklaren Bearbeitungsstatus, den Zugang zum Coach, die Übernahme der Startseiten-Filter und die Formatierung. Vorschlag: direkter Coach-Einstieg, Gruppendaten nur dort, tatsächlicher KI-Status, erkennbare Vorauswahl, sauber formatierte Antworten und Karten sowie eine separate Datenprüfung. Auf die Frage nach Umsetzung auf demselben Branch und Aktualisierung der geschützten Vorschau antwortete der Nutzer: **„ja“**.

@@ -6,6 +6,8 @@ Dieser Feature-Branch setzt ALBAs Wunsch vom 22.09.2026 um: **ausschließlich di
 
 [Regeln, Quellen und offene Fragen](docs/KITA-TESTSTAND.md) · [Entscheidungsverlauf](docs/GESPRAECHSVERLAUF.md)
 
+[Testeinführung für ALBA](docs/ALBA-TESTEINFUEHRUNG.md) · [Einheiten: Diagnose und Korrekturen](docs/DIAGNOSE-EINHEITEN.md)
+
 ## Für Nutzende
 
 1. **Direkt im Coach starten:** Kein zusätzlicher Einstieg und keine separaten Startseiten-Filter.
