@@ -27,7 +27,9 @@ Im Coach unter **Einstellungen** einen eigenen OpenAI-Key eintragen. Schlüssel 
 
 Die plausibel rekonstruierbaren Spaltenbezüge sind als dokumentierte Annahmen umgesetzt, einschließlich erweiterter Folgespiel-Regeln. Offen bleiben AP/AR, die widersprüchliche automatische 30-Minuten-Vorgabe und redaktionelle Datenfragen. Details: [Regelannahmen und offene Fragen](docs/KITA-REGELANNAHMEN.md). Freie Einheiten sind eigene Planungsvorschläge, keine Umsetzung des vollständigen ALBA-Regelsystems.
 
-Handouts für ALBA: [Funktionen und bebildertes Testbeispiel](docs/uebergabe/ALBA_Coach_Funktionen_und_Testbeispiel.docx) und [Zuordnungen, Befunde und Klärungsbedarf](docs/uebergabe/ALBA_Unterlagen_Findings_und_Klaerungsbedarf.docx).
+Übergabe an ALBA: [Begleitmail](docs/uebergabe/ALBA_Begleitmail.md), [kurze Anleitung mit bebildertem Beispiel](docs/uebergabe/ALBA_Coach_Funktionen_und_Testbeispiel.docx) (2 Seiten) und [Handout mit Annahmen und offenen Fragen](docs/uebergabe/ALBA_Unterlagen_Findings_und_Klaerungsbedarf.docx) (1 Seite).
+
+Projektgespräche: [Entscheidungsverlauf](docs/GESPRAECHSVERLAUF.md) und [bereinigter Export der lokal verfügbaren Nachrichten](docs/GESPRAECHSEXPORT.md). Der Export enthält keine Zugangsdaten, internen Arbeitsnotizen oder privaten Originalanhänge; bekannte Vollständigkeitsgrenzen stehen im Dokument.
 
 41 Tabellen-Einträge enthalten mindestens eine offene oder uneindeutige Angabe. Notwendige Auswahlkriterien werden nicht geraten. 74 Einträge besitzen einen eindeutig zugeordneten vorhandenen ALBAthek-Link samt Bild, 55 bleiben ohne Verlinkung/Bild. Anleitungstexte werden ausschließlich aus der Tabelle gelesen, nie aus dem alten Katalog oder durch Web-Nachladen ergänzt.
 

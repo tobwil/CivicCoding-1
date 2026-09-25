@@ -1,6 +1,20 @@
 # Gesprächs- und Entscheidungsverlauf
 
-Stand: 23.09.2026 (Juli-Verlauf mit September-Fortsetzung)
+Stand: 25.09.2026 (Juli-Verlauf mit September-Fortsetzung)
+
+Der [bereinigte Gesprächsexport](GESPRAECHSEXPORT.md) ergänzt diese Zusammenfassung um die lokal verfügbaren Nutzernachrichten und sichtbaren Antworten. Seine Grenzen sind dort beschrieben; Zugangsdaten und interne Arbeitsnotizen bleiben ausgeschlossen.
+
+## Finale Einheitenbedienung und Übergabeunterlagen · 23.–25.09.2026
+
+Der Nutzer wünschte einen klaren Einheiten-Button mit übernommener Gruppendauer sowie nur eine Verarbeitungsanzeige. Die Korrektur ist in Commit `4166b82` enthalten. Die bestehende private KITA-Vorschau wurde aktualisiert. Die abschließenden Korrekturen wurden automatisiert und mit simulierten Werkzeugaufrufen geprüft, nicht nochmals mit einer realen OpenAI-Anfrage.
+
+Für ALBA entstanden eine Begleitmail, eine Anleitung mit Beispiel-Screenshots und ein separates Handout zu Annahmen und offenen Fragen. Auf Wunsch des Nutzers wurden die Dokumente deutlich gekürzt: zwei Seiten Anleitung einschließlich Bildbeispiel und eine Seite Handout. Die Screenshots stammen aus früheren echten Tests und sind entsprechend gekennzeichnet. Die Mail erklärt auf Augenhöhe die Umsetzung, gefundene Unklarheiten und getroffene Annahmen. Sie wurde nur vorbereitet, nicht versendet.
+
+Am 25.09.2026 bat der Nutzer darum, alle Projektunterlagen einschließlich der Gespräche im Repository abzulegen. Die überarbeiteten Unterlagen und der bereinigte Gesprächsexport werden deshalb auf dem bestehenden Feature-Branch gesichert. API-Schlüssel, Passwörter, private Originalmails und lokale Laufzeitdateien gehören nicht in den Export.
+
+- [Begleitmail](uebergabe/ALBA_Begleitmail.md)
+- [Kurze Anleitung mit Beispiel](uebergabe/ALBA_Coach_Funktionen_und_Testbeispiel.docx)
+- [Handout mit offenen Fragen](uebergabe/ALBA_Unterlagen_Findings_und_Klaerungsbedarf.docx)
 
 ## Erneuter Test mit echter KI · 23.09.2026
 
